@@ -5,7 +5,7 @@ library(shinyBS)
 library(V8)
 library(shinyjs)
 
-library(discrimARTs)
+#library(discrimARTs)
 library(leaflet)
 library(raster)
 library(DT)
@@ -27,9 +27,8 @@ shinyUI <- dashboardPage(
                            width = 220,
 
                            sidebarMenu(id="tabs",
-
-                                       menuItem("Prerequisites", tabName= "prereq", icon=icon("book")),
                                        menuItem("Overview",tabName = "instruction", icon = icon("dashboard")),
+                                       menuItem("Prerequisites", tabName= "prereq", icon=icon("book")),
                                        menuItem("Explore",tabName = "explore", icon = icon("wpexplorer")),
                                        menuItem("Game", tabName = "qqq", icon= icon("gamepad"))
 
@@ -75,6 +74,7 @@ shinyUI <- dashboardPage(
 
                                      tags$a(href='http://stat.psu.edu/',tags$img(src='logo.png', align = "left", width = 180)),
                                     br(),br(),br(),
+                                    h1("Regression Assumptions"),
                                     h3(strong("About:")),
                                     h4("This app will allow you to explore how to read diagnostic plots while interacting with different transformations
        to help you better understand the assumptions of regression."),
@@ -90,7 +90,7 @@ shinyUI <- dashboardPage(
                                     h4(tags$li("In the game, the object is to win at tic-tac-toe where you are playing X's.  Select a square, then answer the question.
        If you get the question correct, an X goes in the square.  If you get it wrong, an O goes in the square.")),
                                     div(style = "text-align: center",
-                                        bsButton(inputId = "go", label =  "Go to Exploration",icon("bolt"), style= "danger", size= "large", class="circle grow")
+                                        bsButton(inputId = "go", label = "GO!",icon("book"), style= "danger", size= "large", class="circle grow")
                                     ),
                                     br(),
                                     h3(strong("Acknowledgements:")),
