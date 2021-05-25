@@ -109,7 +109,7 @@ shinyUI <- dashboardPage(
        average residual should be close to 0) and it can also be used to check the assumption of equal variances 
                                         (at any location on the x axis, the variability of the residual should be similar).")),
                                      h4(tags$li("The Normal Q-Q plot can be used to check the assumption of normal errors: i.e. the majority of the points should 
-       be a straight line. Skewness can also be seen by this plot.  See the ", a(href='https://rstudio.aws.science.psu.edu:3838/Boast/Regression/QQ_plot/', 'Q-Q plot')," app for further exploration.")),
+       be a straight line. Skewness can also be seen by this plot.  See the ", a(href='https://psu-eberly.shinyapps.io/QQ_Plot/', 'Q-Q plot')," app for further exploration.")),
                                      h4(tags$li("The Scale-Location plot can be used to check the assumption of equal variances, at any location of the x axis,
         the upper bound of the residuals should be similar.")),
                                      h4(tags$li("The Cook's Distance plot shows the values of leverage, standardized residuals, and Cook's Distance of each data point
