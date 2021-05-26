@@ -147,6 +147,7 @@ ui <- list(
                    class = "circle grow")
                  )
              ),
+     #Explore page ----
      tabItem(tabName = "explore",
              fluidRow(
                h2("Transformations, Sample size, and Variances vs. Diagnostic plots"),

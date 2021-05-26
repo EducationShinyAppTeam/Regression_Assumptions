@@ -64,7 +64,7 @@ shinyServer(function(input, output,session) {
  
  
   observeEvent(input$start, {
-    updateButton(session, "answer", disabled = TRUE)
+    updateButton(session, "answer", disabled = FALSE)
   })
   
   observeEvent(input$challenge, {
@@ -72,7 +72,7 @@ shinyServer(function(input, output,session) {
   })
   
   observeEvent(input$answer, {
-    updateButton(session, "answer", disabled=TRUE)
+    updateButton(session, "answer", disabled = FALSE)
   })
   
   observeEvent(input$begin, {
