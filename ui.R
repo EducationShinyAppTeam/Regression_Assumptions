@@ -9,65 +9,64 @@ library(shinyjs)
 library(leaflet)
 library(raster)
 library(DT)
-
-library(RColorBrewer)
 library(car)
 library(rgdal)
 library(shinyWidgets)
+library(boastUtils)
 #smiles
 
 #This app will be used to explore and play around with the assumptions and diagnostics of regression
 
 
-shinyUI <- dashboardPage(
-                         dashboardHeader(title = "Regression Assumptions and Diagnostics",
-                                         titleWidth = 200),
-                         #adding prereq pages and game pages
-                         dashboardSidebar(
-                           width = 220,
-
-                           sidebarMenu(id="tabs",
-                                       menuItem("Overview",tabName = "instruction", icon = icon("dashboard")),
-                                       menuItem("Prerequisites", tabName= "prereq", icon=icon("book")),
-                                       menuItem("Explore",tabName = "explore", icon = icon("wpexplorer")),
-                                       menuItem("Game", tabName = "qqq", icon= icon("gamepad"))
-
+ui <- list(
+  dashboardPage(
+  skin = "black",
+  dashboardHeader(title = "Regression Assumptions and Diagnostics",
+                  tags$li(
+                    class = "dropdown",
+                    actionLink("info",
+                               icon("info"),
+                               class = "myClass")
+                  ),
+                  tags$li(
+                    class = "dropdown",
+                    tags$a(target = "_blank", 
+                           icon("comments"),
+                           href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Variance_Inflation_Factor"
                            )
-                         ),
+                   ),
+                  tags$li(
+                    class = "dropdown",
+                    tags$a(icon("home"),
+                           href = 'https://shinyapps.science.psu.edu/'
+                           )
+                    )
+                  ),
+  
+  #adding prereq pages and game pages
+  dashboardSidebar(
+    width = 220,
+    sidebarMenu(id="tabs",
+                menuItem("Overview",
+                         tabName = "instruction", 
+                         icon = icon("dashboard")),
+                menuItem("Prerequisites", 
+                         tabName = "prereq", 
+                         icon = icon("book")),
+                menuItem("Explore",
+                         tabName = "explore", 
+                         icon = icon("wpexplorer")),
+                menuItem("Game", 
+                         tabName = "qqq", 
+                         icon= icon("gamepad"))
+                )
+    ),
+  
 
                         ####################### Button and slider bar color edits ######################################
                         ######### Could be combined but left separate so easily understood#####################
 
-                          dashboardBody(
-                           tags$head(
-                             tags$link(rel = "stylesheet", type = "text/css", href = "Feature.css"), #customised style sheet
-                             tags$style(HTML('#start{background-color: #ffb6c1')),
-                             tags$style(HTML('#go{background-color: #ffb6c1')),
-                             tags$style(HTML('#submitD{background-color: #ffb6c1')),
-                             tags$style(HTML('#start{border-color:#ffb6c1')),
-                             tags$style(HTML('#go{border-color: #ffb6c1')),
-                             tags$style(HTML('#submitD{border-color: #ffb6c1')),
-                             tags$style(HTML('#begin{background-color: #ffb6c1')),
-                             tags$style(HTML('#begin{border-color: #ffb6c1')),
-                             tags$style(HTML('#challenge{background-color: #ffb6c1')),
-                             tags$style(HTML('#challenge{border-color: #ffb6c1')),
-                             tags$style(HTML('#answer{background-color: #ffb6c1')),
-                             tags$style(HTML('#answer{border-color: #ffb6c1')),
-                             tags$style(HTML('#submit{background-color: #ffb6c1')),
-                             tags$style(HTML('#submit{border-color: #ffb6c1')),
-                             tags$style(HTML('#nextButton{background-color: #ffb6c1')),
-                             tags$style(HTML('#nextButton{border-color: #ffb6c1')),
-                             tags$style(HTML('#reset{background-color: #ffb6c1')),
-                             tags$style(HTML('#reset{border-color: #ffb6c1')),
-                             tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {background: #ffb6c1}")),
-                             tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {background: #ffb6c1")),
-                             tags$style(HTML(".js-irs-2 .irs-single, .js-irs-2 .irs-bar-edge, .js-irs-2 .irs-bar {background: #ffb6c1")),
-                             tags$style(HTML(".js-irs-3 .irs-single, .js-irs-3 .irs-bar-edge, .js-irs-3 .irs-bar {background: #ffb6c1")),
-                             tags$style(HTML(".js-irs-0 .irs-single, .js-irs-0 .irs-bar-edge, .js-irs-0 .irs-bar {border-color: #ffb6c1")),
-                             tags$style(HTML(".js-irs-1 .irs-single, .js-irs-1 .irs-bar-edge, .js-irs-1 .irs-bar {border-color: #ffb6c1")),
-                             tags$style(HTML(".js-irs-2 .irs-single, .js-irs-2 .irs-bar-edge, .js-irs-2 .irs-bar {border-color: #ffb6c1")),
-                             tags$style(HTML(".js-irs-3 .irs-single, .js-irs-3 .irs-bar-edge, .js-irs-3 .irs-bar {border-color: #ffb6c1"))
-                           ),
+                           dashboardBody(
 
                            tabItems(
                              tabItem(tabName = "instruction",
@@ -273,4 +272,5 @@ shinyUI <- dashboardPage(
 
 
 
+)
 )
