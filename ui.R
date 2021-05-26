@@ -58,7 +58,10 @@ ui <- list(
                          icon = icon("wpexplorer")),
                 menuItem("Game", 
                          tabName = "qqq", 
-                         icon= icon("gamepad"))
+                         icon = icon("gamepad")),
+                menuItem("References",
+                         tabName = "refs",
+                         icon = icon("leanpub"))
                 )
     ),
   dashboardBody(
@@ -97,10 +100,10 @@ ui <- list(
              div(style = "text-align: center",
                  bsButton(inputId = "go", 
                           label = "GO!",
-                          icon("book"), 
-                          style= "danger", 
-                          size= "large", 
-                          class="circle grow")
+                          icon = icon("book"), 
+                          style = "danger", 
+                          size = "large", 
+                          class = "circle grow")
                  ),
              br(),
              h3(strong("Acknowledgements:")),
@@ -136,12 +139,12 @@ ui <- list(
              br(),
              div(style = "text-align: center",
                  bsButton(
-                   "start",
-                   "Go to the overview",
-                   icon("bolt"),
+                   inputId = "start",
+                   label = "GO!",
+                   icon = icon("bolt"),
                    style = "danger",
                    size = "large", 
-                   class="circle grow")
+                   class = "circle grow")
                  )
              ),
      tabItem(tabName = "explore",
@@ -264,17 +267,17 @@ ui <- list(
                         trigger = "click", 
                         options = NULL
                         ),
-              bsButton("submitD", 
-                       "Results for a New Sample", 
+              bsButton(inputId = "submitD", 
+                       label = "Results for a New Sample", 
                        style = "danger",
-                       icon("retweet"), 
+                       icon = icon("retweet"), 
                        size = "large"
                        ),
              br(),
              br(),
-             bsButton("begin",
-                      "Go to the Game",
-                      icon("bolt"),
+             bsButton(inputId = "begin",
+                      label = "GO!",
+                      icon = icon("bolt"),
                       style = "danger",
                       size = "large",
                       class = "circle grow")
@@ -299,12 +302,12 @@ ui <- list(
                    uiOutput("answers")
                    )
                  ),
-               bsButton("challenge", 
-                        "New Activity", 
+               bsButton(inputId = "challenge", 
+                        label = "New Activity", 
                         style = "danger"
                         ),
-               bsButton("answer", 
-                        "View Feedback", 
+               bsButton(inputId = "answer", 
+                        label = "View Feedback", 
                         style = "danger")
                )
              )
@@ -352,7 +355,7 @@ ui <- list(
                       bsButton(
                         inputId = "nextButton",
                         label = "Next Question", 
-                        style= 'danger')
+                        style = 'danger')
                       )
                ),
              fluidRow(
@@ -366,7 +369,20 @@ ui <- list(
                           )
                  )
                )
-             )
+             ),
+     tabItem(
+       tabName = "refs",
+       withMathJax(),
+       h2("References"),
+       p(
+         class = "hangingindent",
+         "https://educationshinyappteam.github.io/Style_Guide/index.html#organization"
+       ),
+       br(),
+       br(),
+       br(),
+       boastUtils::copyrightInfo()
+     )
      )
    )
   )

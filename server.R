@@ -5,12 +5,13 @@ library(shinyBS)
 library(V8)
 library(shinyjs)
 library(car)
-library(discrimARTs)
+#library(discrimARTs)
 library(leaflet)
 library(raster)
 library(DT)
 library(rgdal)
 library(RColorBrewer)
+library(boastUtils)
 
 
 #bankc for challenge bank
@@ -40,12 +41,20 @@ shinyServer(function(input, output,session) {
       type = "info"
     )
   })
-  observeEvent(input$go,{
-    updateTabItems(session,"tabs","explore")
+  observeEvent(
+    eventExpr = input$go, 
+    handlerExpr = {
+      updateTabItems(
+        session = session,
+        inputId = "tabs",
+        selected = "prereq")
   })
   
   observeEvent(input$start,{
-    updateTabItems(session,"tabs","instruction")
+    updateTabItems(
+      session = session,
+      inputId = "tabs",
+      selected = "explore")
   })
   
   observeEvent(input$begin,{
