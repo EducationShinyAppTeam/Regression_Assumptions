@@ -145,18 +145,6 @@ ui <- list(
                  )
              ),
      tabItem(tabName = "explore",
-             div(
-               style="display: inline-block;vertical-align:top;",
-               tags$a(
-                 href='https://shinyapps.science.psu.edu/',
-                 tags$img(src='homebut.PNG',
-                          width = 19)
-                 ),
-               circleButton("infoex",
-                            icon = icon("info"), 
-                            status = "myClass",
-                            size = "xs")
-               ),
              fluidRow(
                h2("Transformations, Sample size, and Variances vs. Diagnostic plots"),
                column(1,
@@ -322,21 +310,6 @@ ui <- list(
              )
              ),
      tabItem(tabName = "qqq",
-             div(
-               style = "display: inline-block;vertical-align:top;",
-               tags$a(
-                 href='https://shinyapps.science.psu.edu/',
-                 tags$img(src='homebut.PNG',
-                          width = 19)
-                 )
-               ),
-             div(
-               style="display: inline-block;vertical-align:top;",
-               circleButton("info",
-                            icon = icon("info"), 
-                            status = "myClass",
-                            size = "xs")
-               ),
              fluidRow(
                h2("Tic-Tac-Toe"),
                column(1,
