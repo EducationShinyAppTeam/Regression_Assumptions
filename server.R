@@ -75,7 +75,7 @@ shinyServer(function(input, output,session) {
     handlerExpr = {
     updateButton(
       session = session, 
-      inputId = "answer", 
+      inputId = "answers", 
       disabled = TRUE)
   })
   
@@ -84,7 +84,7 @@ shinyServer(function(input, output,session) {
     handlerExpr = {
     updateButton(
       session = session, 
-      inputId = "answer", 
+      inputId = "answers", 
       disabled = FALSE)
   })
   
@@ -93,8 +93,8 @@ shinyServer(function(input, output,session) {
     handlerExpr = {
     updateButton(
       session = session, 
-      inputId = "answer", 
-      disabled = FALSE)
+      inputId = "answers", 
+      disabled = TRUE)
   })
   
   observeEvent(
@@ -397,20 +397,29 @@ shinyServer(function(input, output,session) {
   
   ########################## Output for answer box when nothing is in the box #############################
   
-  observeEvent(input$challenge,{
+  observeEvent(
+    eventExpr = input$challenge,
+    handlerExpr = {
     output$answers <- renderText("Please hit the view feedback button for feedback")
   }) 
   
-  observeEvent(input$go,{
+  observeEvent(
+    eventExpr = input$go,
+    handlerExpr = {
     output$answers <- renderText("Please hit the view feedback button for feedback")
   })  
+   observeEvent(
+     eventExpr = input$start,
+     handlerExpr = {
+       output$answers <- renderText("Please hit the view feedback button for feedback")
+     }) 
    
   ###################### output of the answers ################################
   
-  observeEvent(input$answer,{
-   
-  
-    output$answers <- renderUI ({
+  observeEvent(
+    eventExpr = input$answer,
+    handlerExpr = {
+      output$answers <- renderUI ({
       if (index$index == 1){
         h4(bankc[1,3])
       } 
