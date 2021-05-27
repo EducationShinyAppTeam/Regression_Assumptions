@@ -50,33 +50,60 @@ shinyServer(function(input, output,session) {
         selected = "prereq")
   })
   
-  observeEvent(input$start,{
+  observeEvent(
+    eventExpr = input$start,
+    handlerExpr = {
     updateTabItems(
       session = session,
       inputId = "tabs",
       selected = "explore")
   })
   
-  observeEvent(input$begin,{
-    updateTabItems(session, "tabs", "qqq")
+  observeEvent(
+    eventExpr = input$begin,
+    handlerExpr = {
+    updateTabItems(
+      session = session, 
+      inputId = "tabs", 
+      selected = "qqq")
   })
  ############################Gray out buttons###############################
  
  
-  observeEvent(input$start, {
-    updateButton(session, "answer", disabled = FALSE)
+  observeEvent(
+    eventExpr = input$start, 
+    handlerExpr = {
+    updateButton(
+      session = session, 
+      inputId = "answer", 
+      disabled = TRUE)
   })
   
-  observeEvent(input$challenge, {
-    updateButton(session, "answer", disabled = FALSE)
+  observeEvent(
+    eventExpr = input$challenge, 
+    handlerExpr = {
+    updateButton(
+      session = session, 
+      inputId = "answer", 
+      disabled = FALSE)
   })
   
-  observeEvent(input$answer, {
-    updateButton(session, "answer", disabled = FALSE)
+  observeEvent(
+    eventExpr = input$answer, 
+    handlerExpr = {
+    updateButton(
+      session = session, 
+      inputId = "answer", 
+      disabled = FALSE)
   })
   
-  observeEvent(input$begin, {
-    updateButton(session, "submit", disabled = TRUE)
+  observeEvent(
+    eventExpr = input$begin, 
+    handlerExpr = {
+    updateButton(
+      session = session, 
+      inputId = "submit", 
+      disabled = TRUE)
   })
   
   
