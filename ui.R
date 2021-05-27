@@ -22,6 +22,7 @@ ui <- list(
   dashboardPage(
   skin = "black",
   dashboardHeader(title = "Regression Assumptions and Diagnostics",
+                  titleWidth = 250,
                   tags$li(
                     class = "dropdown",
                     actionLink("info",
@@ -46,57 +47,73 @@ ui <- list(
   #adding prereq pages and game pages
   dashboardSidebar(
     width = 220,
-    sidebarMenu(id="tabs",
-                menuItem("Overview",
+    sidebarMenu(id = "tabs",
+                menuItem(text = "Overview",
                          tabName = "instruction", 
-                         icon = icon("dashboard")),
-                menuItem("Prerequisites", 
+                         icon = icon("dashboard")
+                         ),
+                menuItem(text = "Prerequisites", 
                          tabName = "prereq", 
-                         icon = icon("book")),
-                menuItem("Explore",
+                         icon = icon("book")
+                         ),
+                menuItem(text = "Explore",
                          tabName = "explore", 
-                         icon = icon("wpexplorer")),
-                menuItem("Game", 
+                         icon = icon("wpexplorer")
+                         ),
+                menuItem(text = "Game", 
                          tabName = "qqq", 
-                         icon = icon("gamepad")),
-                menuItem("References",
+                         icon = icon("gamepad")
+                         ),
+                menuItem(text = "References",
                          tabName = "refs",
-                         icon = icon("leanpub"))
+                         icon = icon("leanpub")
+                         )
                 )
     ),
   dashboardBody(
    tabItems(
      tabItem(tabName = "instruction",
-             tags$a(href='http://stat.psu.edu/',
+             tags$a(href = 'http://stat.psu.edu/',
                     tags$img(
-                      src='logo.png', 
+                      src = 'logo.png', 
                       align = "left", 
-                      width = 180)),
+                      width = 180)
+                    ),
              br(),
              br(),
              br(),
              h1("Regression Assumptions"),
-             h3(strong("About:")),
+             h2("About:"),
              h4("This app will allow you to explore how to read diagnostic plots
                 while interacting with different transformations to help you better 
                 understand the assumptions of regression."),
              br(),                     
-             h3(strong("Instructions:")),
-             h4(tags$li("Each 'Mystery Model' on the exploration page is generated
+             h2("Instructions"),
+             h4(
+               tags$li("Each 'Mystery Model' on the exploration page is generated
                         with variables or their transformations being the response (Y) or 
-                        the predictor variables (X1, X2).")),
-             h4(tags$li("Watch how diagnostic plots change when you adjust the 
+                        the predictor variables (X1, X2).")
+              ),
+             h4(
+               tags$li("Watch how diagnostic plots change when you adjust the 
                         predictors and response variables using different transformations. 
                         Note that transforming the y variable will effect certain 
                         plots more, and transforming the x variable will effect 
-                        other plots more.")),
-             h4(tags$li('You also have the option to change the variances of each
-                        term, and the sample size.')),
-             h4(tags$li('The instructions in the activity provide some ideas for exploration.')),
-             h4(tags$li("In the game, the object is to win at tic-tac-toe where 
+                        other plots more.")
+              ),
+             h4(
+               tags$li('You also have the option to change the variances of each
+                        term, and the sample size.')
+              ),
+             h4(
+               tags$li('The instructions in the activity provide some ideas for exploration.')
+               ),
+             h4(
+               tags$li("In the game, the object is to win at tic-tac-toe where 
                         you are playing X's.  Select a square, then answer the question.
                         If you get the question correct, an X goes in the square. 
-                        If you get it wrong, an O goes in the square.")),
+                        If you get it wrong, an O goes in the square.")
+               ),
              div(style = "text-align: center",
                  bsButton(inputId = "go", 
                           label = "GO!",
@@ -106,36 +123,46 @@ ui <- list(
                           class = "circle grow")
                  ),
              br(),
-             h3(strong("Acknowledgements:")),
+             h2("Acknowledgements:"),
              h4("This app was developed and coded by TJ McIntyre, with the help of Ryan Voyack.")
              ),
      #Adding pre-requisites page to remove background from instructions page
-     tabItem(tabName="prereq",
-             h3(strong("Background: Assumptions and Diagnostic Plots in Regression")),
-             h4(tags$li("Transforming the x values is appropriate when non-linearity 
+     tabItem(tabName = "prereq",
+             h2("Background: Assumptions and Diagnostic Plots in Regression"),
+             h4(
+             tags$li("Transforming the x values is appropriate when non-linearity 
                         is the only problem (i.e., the independence, normality, 
                         and equal variance conditions are met). Transforming the 
                         y values should be considered when non-normality and/or 
-                        unequal variances are the problems with the model.")),
-             h4(tags$li("The Fitted vs Residuals plot can be used to check the 
+                        unequal variances are the problems with the model.")
+             ),
+             h4(
+             tags$li("The Fitted vs Residuals plot can be used to check the 
                         assumption of linearity (any location on the x axis, the 
                         average residual should be close to 0) and it can also be 
                         used to check the assumption of equal variances (at any 
                         location on the x axis, the variability of the residual 
-                        should be similar).")),
-             h4(tags$li("The Normal Q-Q plot can be used to check the assumption 
+                        should be similar).")
+             ),
+             h4(
+             tags$li("The Normal Q-Q plot can be used to check the assumption 
                         of normal errors: i.e. the majority of the points should 
                         be a straight line. Skewness can also be seen by this plot. 
                         See the ", 
                         a(href='https://psu-eberly.shinyapps.io/QQ_Plot/', 'Q-Q plot'),
-                        " app for further exploration.")),
-             h4(tags$li("The Scale-Location plot can be used to check the assumption 
+                        " app for further exploration.")
+             ),
+             h4(
+             tags$li("The Scale-Location plot can be used to check the assumption 
                         of equal variances, at any location of the x axis, the upper 
-                        bound of the residuals should be similar.")),
-             h4(tags$li("The Cook's Distance plot shows the values of leverage, 
+                        bound of the residuals should be similar.")
+             ),
+             h4(
+             tags$li("The Cook's Distance plot shows the values of leverage, 
                         standardized residuals, and Cook's Distance of each data point
                         which can be used to determine high leverage points, outliers 
-                        and influential points.")),
+                        and influential points.")
+             ),
              br(),
              div(style = "text-align: center",
                  bsButton(
@@ -151,11 +178,6 @@ ui <- list(
      tabItem(tabName = "explore",
              fluidRow(
                h2("Transformations, Sample size, and Variances vs. Diagnostic plots"),
-               column(1,
-                      img(
-                        src = "pink.jpg",
-                        width = 20)
-                      ),
                h4("Each model is generated with Y as the response variable and X1 and X2 being the predictor variables.")
                ),
              br(),
@@ -305,22 +327,20 @@ ui <- list(
                  ),
                bsButton(inputId = "challenge", 
                         label = "New Activity", 
-                        style = "danger"
+                        style = "danger",
+                        disabled = FALSE
                         ),
                bsButton(inputId = "answer", 
                         label = "View Feedback", 
-                        style = "danger")
+                        style = "danger",
+                        disabled = FALSE)
                )
              )
              ),
+     # Game page ----
      tabItem(tabName = "qqq",
              fluidRow(
                h2("Tic-Tac-Toe"),
-               column(1,
-                      img(
-                        src = "pink.jpg", 
-                        width = 20)
-                      ),
                h4("You will get an X for a correct answers and the computer will 
                   get an O for a wrong answer.")
                ),
@@ -388,3 +408,4 @@ ui <- list(
    )
   )
   )
+
