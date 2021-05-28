@@ -23,17 +23,17 @@ ui <- list(
     skin = "black",
     dashboardHeader(title = "Regression Assumptions and Diagnostics",
                     titleWidth = 250,
+# Creating header buttons ----
                     tags$li(
                       class = "dropdown",
                       actionLink("info",
-                                 icon("info"),
-                                 class = "myClass")
+                                 icon("info"))
                     ),
                     tags$li(
                       class = "dropdown",
                       tags$a(target = "_blank", 
                              icon("comments"),
-                             href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Variance_Inflation_Factor"
+                             href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Assumptions"
                       )
                     ),
                     tags$li(
@@ -44,7 +44,7 @@ ui <- list(
                     )
     ),
     
-    #adding prereq pages and game pages
+    #adding prereq pages and game tabs ----
     dashboardSidebar(
       width = 220,
       sidebarMenu(id = "tabs",
@@ -70,6 +70,7 @@ ui <- list(
                   )
       )
     ),
+# Creating overview page ----
     dashboardBody(
       tabItems(
         tabItem(tabName = "instruction",
@@ -116,7 +117,7 @@ ui <- list(
                 ),
                 div(style = "text-align: center",
                     bsButton(inputId = "go", 
-                             label = "GO!",
+                             label = "Go to Prereqs!",
                              icon = icon("book"), 
                              style = "danger", 
                              size = "large", 
@@ -126,9 +127,12 @@ ui <- list(
                 h2("Acknowledgements:"),
                 h4("This app was developed and coded by TJ McIntyre, with the help of Ryan Voyack.")
         ),
-        #Adding pre-requisites page to remove background from instructions page
+#Adding pre-requisites page ----
         tabItem(tabName = "prereq",
-                h2("Background: Assumptions and Diagnostic Plots in Regression"),
+                h2("Prerequisites"),
+                h4("In order to get the most out of this app, it is important to
+                   understand background information about assumptions and diagnostic
+                   plots in regression."),
                 h4(
                   tags$li("Transforming the x values is appropriate when non-linearity 
                         is the only problem (i.e., the independence, normality, 
@@ -299,7 +303,7 @@ ui <- list(
                     br(),
                     br(),
                     bsButton(inputId = "begin",
-                             label = "GO!",
+                             label = "Go to game!",
                              icon = icon("bolt"),
                              style = "danger",
                              size = "large",
@@ -399,6 +403,26 @@ ui <- list(
             class = "hangingindent",
             "https://educationshinyappteam.github.io/Style_Guide/index.html#organization"
           ),
+          p(
+            class = "hangingindent",
+            "Bailey, E. (2015). shinyBS: Twitter bootstrap components for shiny. (v0.61). [R package]. Available from https://CRAN.R-project.org/package=shinyBS"
+          ),
+          p(
+            class = "hangingindent",
+            "Carey, R. (2019). boastUtils: BOAST Utilities. (v0.1.0). [R Package]. Available from https://github.com/EducationShinyAppTeam/boastUtils"
+          ),
+          p(
+            class = "hangingindent",
+            "Chang, W. and Borges Ribeio, B. (2018). shinydashboard: Create dashboards with 'Shiny'. (v0.7.1) [R Package]. Available from https://CRAN.R-project.org/package=shinydashboard"
+          ),
+          p(
+            class = "hangingindent",
+            "Chang, W., Cheng, J., Allaire, J., Xie, Y., and McPherson, J. (2019). shiny: Web application framework for R. (v1.4.0) [R Package]. Available from https://CRAN.R-project.org/package=shiny"
+          ),
+          p(
+            class = "hangingindent",
+            "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs widgets for shiny. (v0.5.0) [R Package]. Available from https://CRAN.R-project.org/package=shinyWidgets"
+          ),
           br(),
           br(),
           br(),
@@ -417,7 +441,7 @@ bankc = data.frame(lapply(bankc, as.character), stringsAsFactors = FALSE)
 
 
 # Define server logic required to draw a histogram
-shinyServer(function(input, output,session) {
+server <- function(input, output,session) {
   
   ##########################Go buttons##################################### 
   observeEvent(input$infoex,{
@@ -1417,6 +1441,6 @@ shinyServer(function(input, output,session) {
     container[(length(container)+1)] <<- ifelse(temp[num] == "correct", 1, 0)
   })
   
-  boastUtils::boastApp(ui = ui, server= server)
+}
+  boastUtils::boastApp(ui = ui, server = server)
   
-})
