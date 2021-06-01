@@ -4,7 +4,7 @@ library(png)
 library(shinyBS)
 library(V8)
 library(shinyjs)
-
+library(shinyalert)
 #library(discrimARTs)
 library(leaflet)
 library(raster)
@@ -16,7 +16,8 @@ library(boastUtils)
 
 
 #This app will be used to explore and play around with the assumptions and diagnostics of regression
-
+GRID_SIZE <- 3
+TILE_COUNT <- GRID_SIZE ^ 2
 
 ui <- list(
   dashboardPage(
@@ -44,7 +45,7 @@ ui <- list(
                     )
     ),
     
-    #adding prereq pages and game tabs ----
+    #adding prereq and game tabs ----
     dashboardSidebar(
       width = 220,
       sidebarMenu(id = "tabs",
@@ -68,21 +69,13 @@ ui <- list(
                            tabName = "refs",
                            icon = icon("leanpub")
                   )
-      )
+      ),
+      tags$div(class = "sidebar-logo", boastUtils::psu_eberly_logo("reversed"))
     ),
 # Creating overview page ----
     dashboardBody(
       tabItems(
         tabItem(tabName = "instruction",
-                tags$a(href = 'http://stat.psu.edu/',
-                       tags$img(
-                         src = 'logo.png', 
-                         align = "left", 
-                         width = 180)
-                ),
-                br(),
-                br(),
-                br(),
                 h1("Regression Assumptions"),
                 h2("About:"),
                 h4("This app will allow you to explore how to read diagnostic plots
@@ -125,7 +118,7 @@ ui <- list(
                 ),
                 br(),
                 h2("Acknowledgements:"),
-                h4("This app was developed and coded by TJ McIntyre, with the help of Ryan Voyack.")
+                h4("This app was developed and coded by TJ McIntyre, with the help of Ryan Voyack and was updated by Lydia Bednarczyk.")
         ),
 #Adding pre-requisites page ----
         tabItem(tabName = "prereq",
@@ -343,57 +336,99 @@ ui <- list(
         ),
         # Game page ----
         tabItem(tabName = "qqq",
-                fluidRow(
-                  h2("Tic-Tac-Toe"),
-                  h4("You will get an X for a correct answers and the computer will 
-                  get an O for a wrong answer.")
+                withMathJax(),
+                useShinyalert(),
+                h2("NHST Tic-Tac-Toe"),
+                p(
+                  "To play, click on any one of the buttons that have a question mark. A question will appear to the right with possible answers. If you answer correctly, you will take the square; if not, the computer will take the square. Try your best to win the game!"
                 ),
+                h3(uiOutput("player")),
                 fluidRow(
-                  column(4,
-                         leafletOutput('image'),
-                         br(),
-                         textOutput("warning"),
-                         textOutput("gameMessage")
-                  ),
-                  column(8,
-                         conditionalPanel("output.temp != 2",
-                                          conditionalPanel(
-                                            "input.image_click",
-                                            uiOutput("CurrentQuestion"),
-                                            uiOutput("CurrentQuestion.extra"),
-                                            br(),
-                                            br(),
-                                            br()
-                                          ),
-                                          textOutput("directions"),
-                                          br()
-                         )
-                  ),
-                  
-                  column(2,
-                         bsButton(
-                           inputId = 'submit', 
-                           label = 'Submit Answer', 
-                           style = 'danger')
-                  ),
-                  column(1,
-                         bsButton(
-                           inputId = "nextButton",
-                           label = "Next Question", 
-                           style = 'danger')
-                  )
-                ),
-                fluidRow(
-                  column(
-                    width = 12, 
-                    offset = 5,
+                  div(
+                    class = "col-sm-12 col-md-4",
+                    h3("Game Board"),
                     br(),
-                    bsButton(inputId = "reset", 
-                             label = "Start new game", 
-                             style = 'danger'
-                    )
+                    uiOutput("gameBoard", class = "game-board")
+                  ),
+                  div(
+                    class = "col-sm-12 col-md-8",
+                    h3("Question"),
+                    withMathJax(uiOutput("question")),
+                    uiOutput("extraOutput"),
+                    h3("Answer"),
+                    uiOutput("answer"),
+                    bsButton(
+                      inputId = "submit",
+                      label = "Submit",
+                      size = "large",
+                      style = "default",
+                      disabled = TRUE
+                    ),
+                    bsButton(
+                      inputId = "reset",
+                      label = "Reset Game",
+                      color = "primary",
+                      size = "large",
+                      style = "default"
+                    ),
+                    br(),
+                    #These two triggers help with MathJax re-rendering
+                    uiOutput("trigger1"),
+                    uiOutput("trigger2")
                   )
                 )
+                
+                # fluidRow(
+                #   h2("Tic-Tac-Toe"),
+                #   h4("You will get an X for a correct answers and the computer will 
+                #   get an O for a wrong answer.")
+                # ),
+                # fluidRow(
+                #   column(4,
+                #          leafletOutput('image'),
+                #          br(),
+                #          textOutput("warning"),
+                #          textOutput("gameMessage")
+                #   ),
+                #   column(8,
+                #          conditionalPanel("output.temp != 2",
+                #                           conditionalPanel(
+                #                             "input.image_click",
+                #                             uiOutput("CurrentQuestion"),
+                #                             uiOutput("CurrentQuestion.extra"),
+                #                             br(),
+                #                             br(),
+                #                             br()
+                #                           ),
+                #                           textOutput("directions"),
+                #                           br()
+                #          )
+                #   ),
+                #   
+                #   column(2,
+                #          bsButton(
+                #            inputId = 'submit', 
+                #            label = 'Submit Answer', 
+                #            style = 'danger')
+                #   ),
+                #   column(1,
+                #          bsButton(
+                #            inputId = "nextButton",
+                #            label = "Next Question", 
+                #            style = 'danger')
+                #   )
+                # ),
+                # fluidRow(
+                #   column(
+                #     width = 12, 
+                #     offset = 5,
+                #     br(),
+                #     bsButton(inputId = "reset", 
+                #              label = "Start new game", 
+                #              style = 'danger'
+                #     )
+                #   )
+                # )
         ),
         tabItem(
           tabName = "refs",
@@ -440,10 +475,11 @@ bankc <- read.csv("ChallengeOutput.csv")
 bankc = data.frame(lapply(bankc, as.character), stringsAsFactors = FALSE)
 
 
-# Define server logic required to draw a histogram
+# Server ----
+
 server <- function(input, output,session) {
   
-  ##########################Go buttons##################################### 
+#Go buttons ---- 
   observeEvent(input$infoex,{
     sendSweetAlert(
       session = session,
@@ -487,8 +523,7 @@ server <- function(input, output,session) {
         inputId = "tabs", 
         selected = "qqq")
     })
-  ############################Gray out buttons###############################
-  
+#Gray out buttons ----
   
   observeEvent(
     eventExpr = input$start, 
@@ -532,7 +567,7 @@ server <- function(input, output,session) {
     output$plots=
       renderPlot({
         
-        if(input$model== "Model 1"){
+        if(input$model == "Model 1"){
           nonex<- rnorm(input$n,3,input$x1v)
           nonex2<- rnorm(input$n,3,input$x2v)
           e<- rnorm(input$n,0,.2**2)
@@ -906,540 +941,987 @@ server <- function(input, output,session) {
     }
   )
   
+  #Tic tac toe ----
   
+  # Variables
+  activeBtn <- NA
+  activeQuestion <- NA
+  player <- NA
+  opponent <- NA
+  scoreMatrix <-
+    matrix(
+      data = rep.int(0, times = TILE_COUNT),
+      nrow = GRID_SIZE,
+      ncol = GRID_SIZE
+    )
+  gameProgress <- FALSE
   
-  
-  #######TICTAC
-  
-  #### question bank ####
-  bank <- read.csv('bank.csv', stringsAsFactors = FALSE)
-  bank <- bank[,c(1,2,4:7,9,16)]
-  bank[17:18,2] <- gsub('11',"\\\\",gsub("([\\\\])",'1',bank[17:18,2]))
-  Qs <- nrow(bank)
-  
-  
-  ######## MY SERVER CODE ##########
-  
-  
-  X.icon <- makeIcon(iconUrl = 'X.PNG', iconWidth= 90)
-  O.icon <- makeIcon(iconUrl= 'O.PNG',iconWidth= 105)
-  value <- matrix(rep(-3,9),3,3)
-  values <- list(value) # 
-  container <- c() # contains right or wrong answers after submit button is pressed 
-  XsAndOs <- list()
-  resolved <- c(rep(FALSE, Qs))
-  
-  #lists <- reactiveValues(container <- c(),values <- list(),value <- NULL)
-  
-  sr1.1=Polygon(cbind(c(0.5,0.5,3.5,3.5), c(2.5,1.5,1.5,2.5))) # inner, middle horizontal lines
-  sr1.2=Polygon(cbind(c(0.5,0.5,3.5,3.5), c(2.5,3.5,3.5,2.5))) # inner, horizontal lines
-  sr1.3=Polygon(cbind(c(0.5,0.5,3.5,3.5), c(0.5,1.5,1.5,0.5))) # inner, horizontal lines
-  sr2=Polygon(cbind(c(1.5,1.5,2.5,2.5), c(3.5,0.5,0.5,3.5)))
-  sr3=Polygon(cbind(c(0.5,0.5,0.5,3.5), c(0.52,3.47,0.5,0.5))) #outer 
-  sr4=Polygon(cbind(c(3.5,3.5,0.5,3.5), c(0.52,3.47,3.5,3.5))) #square
-  srs1.1=Polygons(list(sr1.1), 's1.1')
-  srs1.2=Polygons(list(sr1.2), 's1.2')
-  srs1.3=Polygons(list(sr1.3), 's1.3')
-  srs2=Polygons(list(sr2), 's2')
-  srs3=Polygons(list(sr3), 's3')
-  srs4=Polygons(list(sr4), 's4')
-  #srs1.2,srs1.3
-  spp = SpatialPolygons(list(srs1.1,srs2,srs3,srs4), 1:4)
-  #spp = SpatialPolygons(list(srs3,srs4), 1:2)
-  
-  r <- raster(xmn = 0.5, xmx = 3.5, ymn = 0.5, ymx = 3.5, nrows = 3, ncols = 3)
-  values(r) <- matrix(1:9, nrow(r), ncol(r), byrow = TRUE)
-  crs(r) <- CRS("+init=epsg:4326")
-  new.board <- leaflet(options = leafletOptions(zoomControl = FALSE, doubleClickZoom = FALSE, minZoom = 7, maxZoom = 7)) %>%  addPolygons(data=spp) %>% addRasterImage(r, colors="Set3")
-  # %>% addTiles()
-  line <- function(){
-    #recall, in the value matrix, zero's represent O's, or wrong answers
-    for(i in 1:3){
-      total.1 <- 0 ; total.2 <- 0
-      for(j in 1:3){
-        total.1 <- total.1 + value[i, j]
-        total.2 <- total.2 + value[j, i]
-      }
-      if(total.1==0 | total.2==0 | total.1==3 | total.2==3){
-        break
-      }
-    }
-    total.3 <- value[1, 1] + value[2, 2] + value[3, 3]
-    total.4 <- value[1, 3] + value[2, 2] + value[3, 1]
+  # Helper Functions
+  .tileCoordinates <- function(tile = NULL, index = NULL) {
+    row <- -1
+    col <- -1
     
-    #if the game has been won:
-    if(total.1==0 | total.2==0 | total.3==0 | total.4==0 | total.1==3 | total.2==3 | total.3==3 | total.4==3){
-      #place.na[!is.na(place.na)] <<- NA
-      if(total.1==0 | total.2==0 | total.3==0 | total.4==0){
-        warning('LOSE')
-        return("You lost try again!")  #title(sub=list("You Are a Loser !", col="darkblue", font=2, cex=2.5), line=2)
-      }else{
-        warning('WIN')
-        return("You Win! Game Over!")  #title(sub=list("You Win ! Game Over !", col="red", font=2, cex=2.5), line=2)
-      }
+    # if: button tile is given, derive from id
+    # else: derive from index
+    if (!is.null(tile)) {
+      # grid-[row]-[col]
+      tile <- strsplit(tile, "-")[[1]]
+      tile <- tile[-1] # remove oxo
+      
+      row <- strtoi(tile[1])
+      col <- strtoi(tile[2])
+    } else {
+      row <- (index - 1) %/% GRID_SIZE + 1
+      col <- index - (GRID_SIZE * (row - 1))
     }
     
+    coordinates <- list("row" = row,
+                        "col" = col)
     
-    
-    
-    #if the previous is true (if the game is over) then this will fire through as well
-    #this will also fire through if the board is full, regardless of whether the previous if() has executed
-    #i dont know why these two statements should both be here
-    
-    if(length(which(value!=-3))==9){
-      if(total.1==0 | total.2==0 | total.3==0 | total.4==0 | total.1==3 | total.2==3 | total.3==3 | total.4==3){
-        #if(total.1==0 | total.2==0 | total.3==0 | total.4==0){
-        #  title(sub=list("You Are a Loser !", col="darkblue", font=2, cex=2.5), line=2)
-        #}else{
-        #  title(sub=list("You Win ! Game Over !", col="orange", font=2, cex=2.5), line=2)
-        #}
-      }else{
-        warning('RESTART')
-        return("Draw ! Please try again !")  #title(sub=list("Draw ! Please try again !", col="blue", font=2, cex=2.5), line=2)
-      }
-    }
-    return(NULL)
+    return(coordinates)
   }
   
-  
-  
-  v <- reactiveValues(doPlot = FALSE)
-  observeEvent(input$image_click, priority = 7, {
-    validate(need(is.null(game()), label='Game is over'))
+  .tileIndex <- function(tile) {
+    coords <- .tileCoordinates(tile)
     
-    #input$image_click will return coordinates when clicked, not a logical value
-    if(!is.null(input$image_click)){
-      v$doPlot <- TRUE
-    }
-  })
-  
-  #object that contains the coordinates returned from clicking the image
-  coords <- eventReactive(input$image_click, {
-    validate(need(is.null(game()), label='Game is over'))
+    index = GRID_SIZE * (coords$row - 1) + coords$col
     
-    validate(need(!is.null(input$image_click), 'need to click image'))
-    input$image_click
-  })
+    return(index)
+  }
   
-  
-  #### keep track of clicks on A: the plot, B: the submit button, C: the next button ####
-  
-  
-  clicks <- reactiveValues(A=0,B=0,C=0)
-  observeEvent(input$image_click, priority = 6, {
-    validate(need(is.null(game()), label='Game is over'))
-    mouse.at <- coords()
-    output$warning <- renderText('')
-    #we dont return an error for out of bounds clicks
-    if(!(mouse.at[[1]] > 3.5 | mouse.at[[1]] < 0.5 | mouse.at[[2]] > 3.5 | mouse.at[[2]] < 0.5)){
-      if(!is.null(input$image_click) & clicks$A==clicks$B){
-        #we allow the user to switch his tic tac toe selection (before a corresponding answer) here
-        clicks$A <- (clicks$A+1)
-        warning(clicks$A, "A")
-      }
-    }else{
-      if(clicks$A == clicks$B){
-        output$warning <- renderText('Please click a valid square')
-      }
-    }
-  })
-  observeEvent(input$submit, priority = 6, {
-    
-    #make sure the player selected an answer when he pressed submit
-    num <- as.character(numbers$question[length(numbers$question)])
-    #     this has been hard coded to correspond with the number of questions in the question bank
-    ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
-    validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
-    warning(ans, 'tit')
-    if(!is.null(input$submit)){clicks$B <- (clicks$B+1)}
-    warning(clicks$B, 'b')
-  })
-  observeEvent(input$nextButton, priority = 6, {
-    if(!is.null(input$nextButton)){clicks$C <- (clicks$C+1)}
-    warning(clicks$C, 'c')
-  })
-  
-  
-  #called in the next observer below 
-  ID <- reactive({
-    validate(need(is.null(game()), label='Game is over'))
-    
-    validate(
-      need(!is.null(input$image_click), 'click image') # because this will always come first
+  .btnReset <- function(index) {
+    coords <- .tileCoordinates(index = index)
+    id <- paste0("grid-", coords$row, "-", coords$col)
+    updateButton(
+      session = session,
+      inputId = id,
+      label = "?",
+      disabled = FALSE
     )
-    if(clicks$A>=clicks$B){
-      if(clicks$A>clicks$B){
-        "choice"
-      }else if(clicks$A==clicks$B){
-        #if the first few clicks are not valid squares, we must make sure theres no errors in the next observe handler below
-        if(clicks$A==0){
-          "choice"
-        }else{
-          "answer"
-        }
-      }
-    }
-  })
+  }
   
-  observe({
-    warning(XsAndOs)
-  })
-  
-  game <- reactiveVal(NULL)
-  
-  #contains the board as it changes throughout the game
-  #will store markers in XsAndOs list
-  #as this event fires, only one marker will be added to the XsAndOs list each time
-  #the first if statement will store an empty marker, when a box is chosen. Then,
-  #then the second will overwrite it with an X or an O, when a question is answered
-  
-  observeEvent({input$submit
-    input$image_click}, priority = 0,{
-      validate(need(is.null(game()), label='Game is over'))
-      
-      mouse.at <- coords()
-      ID <- ID()
-      
-      #if the user enters an invalid click after he already entered his choice on the board, it will not affect the outcome of an answer submission
-      
-      if(clicks$A > clicks$B | clicks$A == 0){
-        validate(
-          need(!(mouse.at[[1]] > 3.5 | mouse.at[[1]] < 0.5 | mouse.at[[2]] > 3.5 | mouse.at[[2]] < 0.5), label='please enter a valid click')
-        )
-      }else if(clicks$A == clicks$B & ID == "answer" & XsAndOs[[ifelse(length(XsAndOs)==0,'',length(XsAndOs))]][3] %in% c(0,1) ){
-        #or, if the user enters an invalid click before entering a valid click, it will not crash the app
-        if(length(XsAndOs) == clicks$A){
-          validate(
-            need(!(mouse.at[[1]] > 3.5 | mouse.at[[1]] < 0.5 | mouse.at[[2]] > 3.5 | mouse.at[[2]] < 0.5), label='please enter a valid click')
-          )
-        }
-      }
-      
-      
-      warning(ID)
-      
-      #statement that checks the ID return from either of the input triggering events. choice or answer
-      
-      if(ID=="choice"){
-        mouse.at[[1]] <- round(mouse.at[[1]])
-        mouse.at[[2]] <- round(mouse.at[[2]])
-        x<<-mouse.at[[1]]
-        y<<-mouse.at[[2]]
-        
-        #     should this be length(XsAndOs) ?  6/14/18
-        
-        XsAndOs[[(length(container)+1)]] <<- c(mouse.at[[2]],(mouse.at[[1]]-.3),NULL)
-        leafletProxy("image", session) %>% addMarkers(lng=XsAndOs[[length(XsAndOs)]][1], lat=XsAndOs[[length(XsAndOs)]][2], layerId = "dummy")
-        
-      }else if(ID=="answer"){
-        value <<- values[[length(values)]]
-        if(container[length(container)]==0){
-          value[x, y] <<- 0
-        }else if(container[length(container)]==1){
-          value[x, y] <<- 1
-        }
-        values[[1]] <<- matrix(-3,3,3)
-        values[[(length(values)+1)]] <<- value
-        temp <<- which((values[[length(values)]] - values[[ (length(values)-1) ]])!=0)
-        values[[length(values)]][temp] <<- container[length(container)]
-        
-        #plotting part, this will overwrite what previously passed through the first if statement in this observe handler
-        
-        if(temp<4){
-          XsAndOs[[(length(XsAndOs))]][3] <<- ifelse(matrix(values[[length(values)]],3,3)[[temp]]==0, 0, 1)
-        }else if(temp<7){ 
-          XsAndOs[[(length(XsAndOs))]][3] <<- ifelse(matrix(values[[length(values)]],3,3)[[temp]]==0, 0, 1)
-        }else if(temp<10){
-          XsAndOs[[(length(XsAndOs))]][3] <<- ifelse(matrix(values[[length(values)]],3,3)[[temp]]==0, 0, 1)
-        }else{
-          stop("OH NO")
-        }
-        
-        leafletProxy("image", session)  %>% removeMarker(layerId = "dummy")
-        warning(XsAndOs[[length(XsAndOs)]][3])
-        if(!(XsAndOs[[length(XsAndOs)]][3] %in% c(0,1))){stop('VERY BAD')}
-        if(XsAndOs[[length(XsAndOs)]][3]==1){
-          leafletProxy("image", session)  %>% addMarkers(y,x+.56,icon = X.icon)
-        }else{
-          leafletProxy("image", session)  %>% addMarkers(y,x+.56,icon = O.icon)
-        }
-        
-        temp <- line()
-        game(temp) #reactiveVal syntax
-        message(temp)
-      }
-    }
-  )  
-  
-  #### alerts user of status of game (if it is over) ####
-  #return from line() function
-  output$gameMessage <- renderText({
-    validate(need(!is.null(game), label = 'Game is over'))
+  .score <- function(score, tile, value) {
+    i <- .tileCoordinates(tile)
     
-    game <- game()
-    game
-  })
+    score[i$row, i$col] <- value
+    
+    return(score)
+  }
   
+  .gameCheck <- function(mat) {
+    rows <- rowSums(mat)
+    cols <- colSums(mat)
+    
+    if (GRID_SIZE > 1) {
+      mainD <- sum(diag(mat))
+      rotated <- apply(t(mat), 2, rev)
+      offD <- sum(diag(rotated))
+      
+      if (GRID_SIZE %in% rows ||
+          GRID_SIZE %in% cols ||
+          mainD == GRID_SIZE || offD == GRID_SIZE) {
+        return("win")
+      } else if (-GRID_SIZE %in% rows ||
+                 -GRID_SIZE %in% cols == 1 ||
+                 mainD == -GRID_SIZE || offD == -GRID_SIZE) {
+        return("lose")
+      } else if (any(mat == 0)) {
+        return("continue")
+      } else {
+        return("draw")
+      }
+    } else {
+      ifelse(rows == 1 && rows != 0, return("win"), return("lose"))
+    }
+  }
   
-  ####render image of tic tac toe board####
-  output$image <- renderLeaflet({
-    new.board
-    #  out = out %>% addMarkers(lng=temp[[1]],lat=temp[[2]], icon=tryCatch(ifelse(temp[[3]]==1, X.icon, O.icon), error=function(e)NULL))
-  })
+  .boardBtn <- function(tile) {
+    index <- .tileIndex(tile)
+    activeQuestion <<- gameSet[index, "id"]
+    
+    output$question <- renderUI({
+      withMathJax()
+      return(gameSet[index, "question"])
+    })
+    
+    output$answer <- .ansFunc(index, gameSet)
+    
+    if (gameSet[index, "extraOutput"] != "") {
+      output$extraOutput <- renderText({
+        gameSet[index, "extraOutput"]
+      })
+    } else {
+      output$extraOutput <- NULL
+    }
+    
+    #Retrigger MathJax processing
+    output$trigger1 <- renderUI({
+      withMathJax()
+    })
+    output$trigger2 <- renderUI({
+      withMathJax()
+    })
+    
+    #Enable Submit Button
+    updateButton(session = session,
+                 inputId = "submit",
+                 disabled = FALSE)
+  }
   
-  #### go button ####
-  observeEvent(input$go, priority=1, {
+  .ansFunc <- function(index, df) {
+    if (df[index, "format"] == "numeric") {
+      renderUI({
+        numericInput(inputId = "ans",
+                     label = df[index, "label"],
+                     value = 0)
+      })
+    } else if (df[index, "format"] == "two") {
+      renderUI({
+        radioGroupButtons(
+          inputId = "ans",
+          choices = list(df[index, "A"],
+                         df[index, "B"]),
+          selected = character(0),
+          checkIcon = list(
+            yes = icon("check-square"),
+            no = icon("square-o")
+          ),
+          status = "textGame",
+          direction = "horizontal",
+          individual = TRUE
+        )
+      })
+    } else if (df[index, "format"] == "three") {
+      renderUI({
+        radioGroupButtons(
+          inputId = "ans",
+          choices = list(df[index, "A"],
+                         df[index, "B"],
+                         df[index, "C"]),
+          selected = character(0),
+          checkIcon = list(
+            yes = icon("check-square"),
+            no = icon("square-o")
+          ),
+          status = "textGame",
+          direction = "vertical"
+        )
+      })
+    } else {
+      renderUI({
+        radioGroupButtons(
+          inputId = "ans",
+          choices = list(df[index, "A"],
+                         df[index, "B"],
+                         df[index, "C"],
+                         df[index, "D"]),
+          selected = character(0),
+          checkIcon = list(
+            yes = icon("check-square"),
+            no = icon("square-o")
+          ),
+          status = "textGame",
+          direction = "vertical"
+        )
+      })
+    }
+  }
+  
+  .gameReset <- function() {
+    lapply(1:TILE_COUNT, .btnReset)
+    qSelected <<-
+      sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
+    gameSet <<- questionBank[qSelected,]
+    
+    output$question <-
+      renderUI({
+        return("Click a button on the game board to get started on your new game.")
+      })
+    output$answer <- renderUI({
+      ""
+    })
+    output$extraOutput <- renderUI({
+      ""
+    })
+    scoreMatrix <<-
+      matrix(
+        data = rep.int(0, times = TILE_COUNT),
+        nrow = GRID_SIZE,
+        ncol = GRID_SIZE
+      )
+    gameProgress <- FALSE
+    activeBtn <- NA
+    
+    updateButton(session = session,
+                 inputId = "submit",
+                 disabled = TRUE)
+  }
+  
+  ## BEGIN App Specific xAPI Wrappers ----
+  .generateStatement <- function(session, verb = NA, object = NA, description = NA) {
+    if(is.na(object)){
+      object <- paste0("#shiny-tab-", session$input$tabs)
+    }
+    
+    stmt <- boastUtils::generateStatement(
+      session,
+      verb = verb,
+      object = object,
+      description = description
+    )
+    
+    response <- boastUtils::storeStatement(session, stmt)
+    
+    return(response)
+  }
+  
+  .generateAnsweredStatement <- function(session, verb = NA, object = NA, description = NA, interactionType = NA, response = NA, success = NA, completion = FALSE) {
+    
+    stmt <- boastUtils::generateStatement(
+      session,
+      verb = verb,
+      object = object,
+      description = paste0("Question ", activeQuestion, ": ", description),
+      interactionType = interactionType,
+      success = success,
+      response = response,
+      completion = completion,
+      extensions = list(
+        ref = "https://educationshinyappteam.github.io/BOAST/xapi/result/extensions/scoreMatrix",
+        value = paste(as.data.frame(scoreMatrix), collapse = ", ")
+      )
+    )
+    
+    response <- boastUtils::storeStatement(session, stmt)
+    
+    return(response)
+  }
+  ## END App Specific xAPI Wrappers ----
+  
+  # Define navigation buttons
+  observeEvent(
+    eventExpr = input$go1, 
+    handlerExpr = {
     updateTabItems(session, "tabs", "qqq")
   })
-  observe({
-    validate(
-      need(is.null(input$image_click), message='')
-    )
-    output$directions <- renderText({"Begin by selecting the square on the tic-tac-toe grid you would like."})
+  
+  # Read in data and generate the first subset ----
+  questionBank <-
+    read.csv("bank.csv",
+             stringsAsFactors = FALSE,
+             as.is = TRUE)
+  qSelected <-
+    sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
+  gameSet <- questionBank[qSelected,]
+  
+  # Program the Reset Button
+  observeEvent(input$reset, {
+    .generateStatement(session, object = "reset", verb = "interacted", description = "Game board has been reset.")
+    .gameReset()
   })
   
-  ####start over; new game####
-  observeEvent(input$reset, priority = 5,{
-    if(!is.null(game())){
-      game(NULL)
+  # Render Game Board / Attach Observers
+  output$gameBoard <- renderUI({
+    board <- list()
+    index <- 1
+    
+    sapply(1:GRID_SIZE, function(row) {
+      sapply(1:GRID_SIZE, function(column) {
+        id <- paste0("grid-", row, "-", column)
+        
+        board[[index]] <<- tags$li(
+          actionButton(
+            inputId = paste0("grid-", row, "-", column),
+            label = "?",
+            color = "primary",
+            style = "bordered",
+            class = "grid-fill"
+          ),
+          class = "grid-tile"
+        )
+        
+        observeEvent(session$input[[id]], {
+          activeBtn <<- id
+          .boardBtn(id)
+          .generateStatement(session, object = activeBtn, verb = "interacted", description = paste0("Tile ", activeBtn, " selected. Rendering question: ", activeQuestion, "."))
+        })
+        
+        index <<- index + 1
+      })
+    })
+    
+    tags$ol(board, class = paste(
+      "grid-board",
+      "grid-fill",
+      paste0("grid-", GRID_SIZE, "x", GRID_SIZE)
+    ))
+  })
+  
+  # Program Submit Button
+  observeEvent(input$submit, {
+    index <- .tileIndex(activeBtn)
+    answer <- ""
+    
+    if (gameSet[index, "format"] == "numeric") {
+      answer <- gameSet[index, "answer"]
+    } else {
+      answer <- gameSet[index, gameSet[index, "answer"]]
     }
-    leafletProxy("image", session) %>% clearMarkers()
     
-    value <<- matrix(rep(-3,9),3,3)
-    values <<- list(value)
-    container <<- c()
-    XsAndOs <<- list()
-    #need to use scoping operator because i didnt create the (above) as reactive objects
-    clicks$A <- 0
-    clicks$B <- 0
-    clicks$C <- 0
+    success <- input$ans == answer
     
-    
-    #create arbitrary cut off of 9 questions (i would say its reasonable) keep in mind the quesiton bank has 18 questions
-    #if more than 9 questions have been answered, then we reset the question bank so that all questions can be drawn from
-    
-    if(length(which(answers() %in% c("correct","incorrect")))>9){
-      numbers$question <- c()
-    }else{
-      #put the incorrectly answered questions back into play
-      if("incorrect" %in% unique(answers())){
-        if("correct" %in% unique(answers())){
-          #numbers$question <- numbers$question[which((answers()=="correct"))] #we assign the taken questions to be only the correctly answered ones
-          numbers$question <- which(answers()=="correct") #we assign the taken questions to be only the correctly answered ones
-        }else{
-          numbers$question <- c() #since no answers were correct, all questions are in play
-        }
-      }
-      
-      #get rid of most recent question (but if it was answered correctly, it still will not be included)
-      numbers$question <- numbers$question[-length(numbers$question)]
-    }
-    
-    #resample to get new random question for when the game is restarted (when image is clicked)
-    
-    space<-c(1:Qs)
-    numbers$question[(length(numbers$question)+1)] <- sample(space[-tryCatch(if(numbers$question){numbers$question}, error=function(e) 29)], 1)
-    warning(numbers$question)
-    
-    updateButton(session, 'nextButton',  disabled = TRUE, style= 'danger')
-    output$directions <- renderText({"Begin by selecting the square on the plot you would like"})
-  })
-  
-  #temporary place holders, will be used as a logical pass to the conditional panel containing the renderUI output
-  
-  observeEvent(input$image_click, {
-    validate(need(is.null(game()), label='Game is over'))
-    
-    output$temp <- renderText({'1'})
-  })
-  observeEvent(input$reset, priority = 8, {
-    output$temp <- renderText({'2'})
-  })
-  
-  
-  #### enact game over mode ####
-  observeEvent(input$submit, priority = -1, {
-    validate(need(!is.null(game()), label='Game is over'))
-    
-    #make sure the player selected an answer when he pressed submit
-    
-    num <- as.character(numbers$question[length(numbers$question)])
-    
-    #     this has been hard coded to correspond with the number of questions in the question bank
-    
-    ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
-    validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
-    
-    updateButton(session, 'nextButton', 
-                 disabled = TRUE)
-    updateButton(session, 'submit', 
-                 disabled = TRUE)
-    output$directions <- renderText({"If you would like to play again, press 'Start new game'!"})
-  })
-  
-  
-  ######## QUESTIONS #########
-  
-  
-  
-  
-  #### random question ####
-  
-  numbers <- reactiveValues(question = c())
-  observeEvent(input$image_click, once=TRUE, priority = 9, {
-    validate(need(is.null(game()), label='Game is over'))
-    
-    numbers$question[1] <- sample(1:Qs, 1)
-    updateButton(session, 'nextButton',  disabled = TRUE)
-    output$directions <- renderText({"Now answer the question and press submit"})
-  })
-  observeEvent(input$nextButton, priority = 4, {
-    space <- c(1:Qs)
-    numbers$question[(length(numbers$question)+1)] <- sample(space[-tryCatch(numbers$question, error=function(e) 29)], 1)
-    updateButton(session, 'nextButton',  disabled = TRUE)
-    output$directions <- renderText({"Now select another square on the board"})
-    if(clicks$A == (clicks$C + 1)){
-      updateButton(session, 'submit',  disabled = FALSE)
-      output$directions <- renderText({"Now answer the question and press submit"})
-    }
-  })
-  
-  
-  ####output random question####
-  output$CurrentQuestion <- renderUI({
-    warning(numbers$question)
-    num <- as.character(numbers$question[length(numbers$question)])
-    warning(num)
-    temp <- NULL
-    
-    # THIS WAS NOT AS DYNAMIC
-    #if(num %in% c(1,2)){
-    #  numericInput(inputId = (num), bank[num, 2], min=0,max=100, val=0)
-    #}else if(num %in% c(3,4,7,10:12)){ 
-    #  radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4]), choiceValues = c("A", "B"),  selected = character(0))
-    #}else if(num %in% c(5,6,8,9,13:16)){
-    #  radioButtons(inputId = (num), label=ifelse(is.null(temp), bank[num, 2], temp), choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5], bank[num, 6]), choiceValues = c("A", "B", "C", "D"), selected = character(0))
-    #}else if(num %in% c(17,18)){
-    #  withMathJax(
-    #    h4(sprintf(
-    #      bank[num, 2]
-    #    ))
-    #  )
-    #  #temp <- ""
-    # }
-    
-    
-    
-    if(num %in% c(17,18)){
-      #this mathjax call is hard coded for specific questions in the CSV
-      withMathJax(
-        h4(sprintf(
-          bank[num, 2]
-        ))
+    if (is.null(success) || length(success) == 0) {
+      sendSweetAlert(
+        session = session,
+        title = "Error",
+        text = "Please select an answer before pressing Submit.",
+        type = "error"
       )
-    }else if(!(FALSE %in% unique(as.vector(bank[num,3:6]=='')))){
-      numericInput(inputId = (num), bank[num, 2], min=0,max=1000, val=0)
-    }else if(!(FALSE %in% unique(as.vector(bank[num,5:6]=='')))){
-      radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4]), choiceValues = c("A", "B"),  selected = character(0))
-    }else if(bank[num,6]==''){
-      radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5]), choiceValues = c("A", "B", "C"), selected = character(0))
-    }else{
-      radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5], bank[num, 6]), choiceValues = c("A", "B", "C", "D"), selected = character(0))
+    } else if (success) {
+      updateButton(
+        session = session,
+        inputId = activeBtn,
+        label = player,
+        disabled = TRUE
+      )
+      scoreMatrix <<- .score(scoreMatrix, activeBtn, 1)
+    } else {
+      updateButton(
+        session = session,
+        inputId = activeBtn,
+        label = opponent,
+        disabled = TRUE
+      )
+      scoreMatrix <<- .score(scoreMatrix, activeBtn,-1)
+    }
+    
+    # Check for game over states
+    .gameState <- .gameCheck(scoreMatrix)
+    completion <- ifelse(.gameState == "continue", FALSE, TRUE)
+    interactionType <- ifelse(gameSet[index,]$format == "numeric", "numeric", "choice")
+    
+    .generateAnsweredStatement(
+      session,
+      object = activeBtn,
+      verb = "answered",
+      description = gameSet[index,]$question,
+      response = input$ans,
+      interactionType = interactionType,
+      success = success,
+      completion = completion
+    )
+    
+    if (.gameState == "win") {
+      .generateStatement(session, object = "qqq", verb = "completed", description = "Player has won the game.")
+      confirmSweetAlert(
+        session = session,
+        inputId = "endGame",
+        title = "You Win!",
+        text = "You've filled either a row, a column, or a main diagonal. Start over and play a new game.",
+        btn_labels = "Start Over"
+      )
+    } else if (.gameState == "lose") {
+      .generateStatement(session, object = "qqq", verb = "completed", description = "Player has lost the game.")
+      confirmSweetAlert(
+        session = session,
+        inputId = "endGame",
+        title = "You lose :(",
+        text = "Take a moment to review the concepts and then try again.",
+        btn_labels = "Start Over"
+      )
+    } else if (.gameState == "draw") {
+      .generateStatement(session, object = "game", verb = "completed", description = "Game has ended in a draw.")
+      confirmSweetAlert(
+        session = session,
+        inputId = "endGame",
+        title = "Draw!",
+        text = "Take a moment to review the concepts and then try again.",
+        btn_labels = "Start Over"
+      )
+    }
+    if (is.null(success) || length(success) == 0) {
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = FALSE
+      )
+    } else{
+      updateButton(
+        session = session,
+        inputId = "submit",
+        disabled = TRUE
+      )
     }
   })
   
-  #hard coded observer for specific questions in the csv
-  output$CurrentQuestion.extra <- renderUI({
-    num <- as.character(numbers$question[length(numbers$question)])
-    if(num == 3){
-      img(src="CIQ3.png",height = 150,width = 500,align = "middle")
-    }else if(num == 4){
-      img(src="CIQ4.png",height = 150,width = 400,align = "middle")
+  observeEvent(input$tabs, {
+    if (input$tabs == "qqq") {
+      if (!gameProgress) {
+        shinyalert(
+          title = "Player Select",
+          text = "Select whether you want to play as O or X.",
+          showConfirmButton = TRUE,
+          confirmButtonText = "Play as X",
+          showCancelButton = TRUE,
+          cancelButtonText = "Play as O"
+        )
+        gameProgress <<- TRUE
+      }
     }
-    else if(num == 19){
-      img(src="CIQ19.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 20){
-      img(src="CIQ20.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 21){
-      img(src="CIQ21.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 22){
-      img(src="CIQ22.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 23){
-      img(src="CIQ3.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 24){
-      img(src="CIQ19.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 25){
-      img(src="CIQ19.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 26){
-      img(src="CIQ22.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 27){
-      img(src="CIQ19.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 28){
-      img(src="CIQ22.png",height = 150,width = 400,align = "middle")
-    }
-    else if(num == 17){
-      radioButtons(inputId = (num), label='', choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5]), choiceValues = c("A", "B", "C"), selected = character(0))
-    }else if(num == 18){
-      radioButtons(inputId = (num), label='', choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5], bank[num, 6]), choiceValues = c("A", "B", "C", "D"), selected = character(0))
-    }
-  })  
+    .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", input$tabs, " tab."))
+  }, ignoreInit = TRUE)
   
-  
-  ####logical flow of answering questions; some extra code to deal with button disabling sequence####
-  observeEvent(input$submit, {
-    #make sure the player selected an answer when he pressed submit
-    num <- as.character(numbers$question[length(numbers$question)])
-    #     this has been hard coded to correspond with the number of questions in the question bank
-    ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
-    validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
-    
-    updateButton(session, 'submit', disabled = TRUE)
-    
-    updateButton(session, 'nextButton',disabled = FALSE)
-    
-    output$directions <- renderText({"Now press the next button"})
-  })
-  observeEvent(input$image_click, {
-    validate(need(is.null(game()), label='Game is over'))
-    
-    if(!(clicks$A > (clicks$C + 1))){
-      updateButton(session, 'submit', disabled = FALSE)
-      output$directions <- renderText({"Now answer the question and press submit"})
-    }
+  observeEvent(input$endGame, {
+    .generateStatement(session, object = "endGame", verb = "interacted", description = paste("Game has been reset."))
+    .gameReset()
   })
   
-  
-  ####checks answer####
-  answers <- reactiveVal(c(rep('', Qs)))
-  observeEvent(input$submit, {
-    #make sure the player selected an answer when he pressed submit
-    num <- as.character(numbers$question[length(numbers$question)])
-    #     this has been hard coded to correspond with the number of questions in the question bank
-    ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
-    validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
-    
-    temp <- answers()
-    num <- as.character(numbers$question[length(numbers$question)])
-    #this has been hard coded to correspond with the number of questions in the question bank
-    ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
-    if(ans == bank[num, 8]){
-      temp2 <- "correct"
-    }else{
-      temp2 <- "incorrect"
+  observeEvent(input$shinyalert, {
+    if (input$shinyalert == TRUE) {
+      player <<- "X"
+      opponent <<- "O"
     }
-    temp[num] <- temp2
-    answers(temp)
-    container[(length(container)+1)] <<- ifelse(temp[num] == "correct", 1, 0)
+    if (input$shinyalert == FALSE) {
+      player <<- "O"
+      opponent <<- "X"
+    }
+    
+    .generateStatement(session, object = "shinyalert", verb = "interacted", description = paste0("User has selected player: ", player))
+    
+    output$player <- renderUI({
+      return(paste0("You are playing as ", player, "."))
+    })
   })
+  
+  # #### question bank ####
+  # bank <- read.csv('bank.csv', stringsAsFactors = FALSE)
+  # bank <- bank[,c(1,2,4:7,9,16)]
+  # bank[17:18,2] <- gsub('11',"\\\\",gsub("([\\\\])",'1',bank[17:18,2]))
+  # Qs <- nrow(bank)
+  # 
+  # 
+  # ######## MY SERVER CODE ##########
+  # 
+  # 
+  # X.icon <- makeIcon(iconUrl = 'X.PNG', iconWidth= 90)
+  # O.icon <- makeIcon(iconUrl= 'O.PNG',iconWidth= 105)
+  # value <- matrix(rep(-3,9),3,3)
+  # values <- list(value) # 
+  # container <- c() # contains right or wrong answers after submit button is pressed 
+  # XsAndOs <- list()
+  # resolved <- c(rep(FALSE, Qs))
+  # 
+  # #lists <- reactiveValues(container <- c(),values <- list(),value <- NULL)
+  # 
+  # sr1.1=Polygon(cbind(c(0.5,0.5,3.5,3.5), c(2.5,1.5,1.5,2.5))) # inner, middle horizontal lines
+  # sr1.2=Polygon(cbind(c(0.5,0.5,3.5,3.5), c(2.5,3.5,3.5,2.5))) # inner, horizontal lines
+  # sr1.3=Polygon(cbind(c(0.5,0.5,3.5,3.5), c(0.5,1.5,1.5,0.5))) # inner, horizontal lines
+  # sr2=Polygon(cbind(c(1.5,1.5,2.5,2.5), c(3.5,0.5,0.5,3.5)))
+  # sr3=Polygon(cbind(c(0.5,0.5,0.5,3.5), c(0.52,3.47,0.5,0.5))) #outer 
+  # sr4=Polygon(cbind(c(3.5,3.5,0.5,3.5), c(0.52,3.47,3.5,3.5))) #square
+  # srs1.1=Polygons(list(sr1.1), 's1.1')
+  # srs1.2=Polygons(list(sr1.2), 's1.2')
+  # srs1.3=Polygons(list(sr1.3), 's1.3')
+  # srs2=Polygons(list(sr2), 's2')
+  # srs3=Polygons(list(sr3), 's3')
+  # srs4=Polygons(list(sr4), 's4')
+  # #srs1.2,srs1.3
+  # spp = SpatialPolygons(list(srs1.1,srs2,srs3,srs4), 1:4)
+  # #spp = SpatialPolygons(list(srs3,srs4), 1:2)
+  # 
+  # r <- raster(xmn = 0.5, xmx = 3.5, ymn = 0.5, ymx = 3.5, nrows = 3, ncols = 3)
+  # values(r) <- matrix(1:9, nrow(r), ncol(r), byrow = TRUE)
+  # crs(r) <- CRS("+init=epsg:4326")
+  # new.board <- leaflet(options = leafletOptions(zoomControl = FALSE, doubleClickZoom = FALSE, minZoom = 7, maxZoom = 7)) %>%  addPolygons(data=spp) %>% addRasterImage(r, colors="Set3")
+  # # %>% addTiles()
+  # line <- function(){
+  #   #recall, in the value matrix, zero's represent O's, or wrong answers
+  #   for(i in 1:3){
+  #     total.1 <- 0 ; total.2 <- 0
+  #     for(j in 1:3){
+  #       total.1 <- total.1 + value[i, j]
+  #       total.2 <- total.2 + value[j, i]
+  #     }
+  #     if(total.1==0 | total.2==0 | total.1==3 | total.2==3){
+  #       break
+  #     }
+  #   }
+  #   total.3 <- value[1, 1] + value[2, 2] + value[3, 3]
+  #   total.4 <- value[1, 3] + value[2, 2] + value[3, 1]
+  #   
+  #   #if the game has been won:
+  #   if(total.1==0 | total.2==0 | total.3==0 | total.4==0 | total.1==3 | total.2==3 | total.3==3 | total.4==3){
+  #     #place.na[!is.na(place.na)] <<- NA
+  #     if(total.1==0 | total.2==0 | total.3==0 | total.4==0){
+  #       warning('LOSE')
+  #       return("You lost try again!")  #title(sub=list("You Are a Loser !", col="darkblue", font=2, cex=2.5), line=2)
+  #     }else{
+  #       warning('WIN')
+  #       return("You Win! Game Over!")  #title(sub=list("You Win ! Game Over !", col="red", font=2, cex=2.5), line=2)
+  #     }
+  #   }
+  #   
+  #   
+  #   
+  #   
+  #   #if the previous is true (if the game is over) then this will fire through as well
+  #   #this will also fire through if the board is full, regardless of whether the previous if() has executed
+  #   #i dont know why these two statements should both be here
+  #   
+  #   if(length(which(value!=-3))==9){
+  #     if(total.1==0 | total.2==0 | total.3==0 | total.4==0 | total.1==3 | total.2==3 | total.3==3 | total.4==3){
+  #       #if(total.1==0 | total.2==0 | total.3==0 | total.4==0){
+  #       #  title(sub=list("You Are a Loser !", col="darkblue", font=2, cex=2.5), line=2)
+  #       #}else{
+  #       #  title(sub=list("You Win ! Game Over !", col="orange", font=2, cex=2.5), line=2)
+  #       #}
+  #     }else{
+  #       warning('RESTART')
+  #       return("Draw ! Please try again !")  #title(sub=list("Draw ! Please try again !", col="blue", font=2, cex=2.5), line=2)
+  #     }
+  #   }
+  #   return(NULL)
+  # }
+  # 
+  # 
+  # 
+  # v <- reactiveValues(doPlot = FALSE)
+  # observeEvent(input$image_click, priority = 7, {
+  #   validate(need(is.null(game()), label='Game is over'))
+  #   
+  #   #input$image_click will return coordinates when clicked, not a logical value
+  #   if(!is.null(input$image_click)){
+  #     v$doPlot <- TRUE
+  #   }
+  # })
+  # 
+  # #object that contains the coordinates returned from clicking the image
+  # coords <- eventReactive(input$image_click, {
+  #   validate(need(is.null(game()), label='Game is over'))
+  #   
+  #   validate(need(!is.null(input$image_click), 'need to click image'))
+  #   input$image_click
+  # })
+  # 
+  # 
+  # #### keep track of clicks on A: the plot, B: the submit button, C: the next button ####
+  # 
+  # 
+  # clicks <- reactiveValues(A=0,B=0,C=0)
+  # observeEvent(input$image_click, priority = 6, {
+  #   validate(need(is.null(game()), label='Game is over'))
+  #   mouse.at <- coords()
+  #   output$warning <- renderText('')
+  #   #we dont return an error for out of bounds clicks
+  #   if(!(mouse.at[[1]] > 3.5 | mouse.at[[1]] < 0.5 | mouse.at[[2]] > 3.5 | mouse.at[[2]] < 0.5)){
+  #     if(!is.null(input$image_click) & clicks$A==clicks$B){
+  #       #we allow the user to switch his tic tac toe selection (before a corresponding answer) here
+  #       clicks$A <- (clicks$A+1)
+  #       warning(clicks$A, "A")
+  #     }
+  #   }else{
+  #     if(clicks$A == clicks$B){
+  #       output$warning <- renderText('Please click a valid square')
+  #     }
+  #   }
+  # })
+  # observeEvent(input$submit, priority = 6, {
+  #   
+  #   #make sure the player selected an answer when he pressed submit
+  #   num <- as.character(numbers$question[length(numbers$question)])
+  #   #     this has been hard coded to correspond with the number of questions in the question bank
+  #   ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
+  #   validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
+  #   warning(ans, 'tit')
+  #   if(!is.null(input$submit)){clicks$B <- (clicks$B+1)}
+  #   warning(clicks$B, 'b')
+  # })
+  # observeEvent(input$nextButton, priority = 6, {
+  #   if(!is.null(input$nextButton)){clicks$C <- (clicks$C+1)}
+  #   warning(clicks$C, 'c')
+  # })
+  # 
+  # 
+  # #called in the next observer below 
+  # ID <- reactive({
+  #   validate(need(is.null(game()), label='Game is over'))
+  #   
+  #   validate(
+  #     need(!is.null(input$image_click), 'click image') # because this will always come first
+  #   )
+  #   if(clicks$A>=clicks$B){
+  #     if(clicks$A>clicks$B){
+  #       "choice"
+  #     }else if(clicks$A==clicks$B){
+  #       #if the first few clicks are not valid squares, we must make sure theres no errors in the next observe handler below
+  #       if(clicks$A==0){
+  #         "choice"
+  #       }else{
+  #         "answer"
+  #       }
+  #     }
+  #   }
+  # })
+  # 
+  # observe({
+  #   warning(XsAndOs)
+  # })
+  # 
+  # game <- reactiveVal(NULL)
+  # 
+  # #contains the board as it changes throughout the game
+  # #will store markers in XsAndOs list
+  # #as this event fires, only one marker will be added to the XsAndOs list each time
+  # #the first if statement will store an empty marker, when a box is chosen. Then,
+  # #then the second will overwrite it with an X or an O, when a question is answered
+  # 
+  # observeEvent({input$submit
+  #   input$image_click}, priority = 0,{
+  #     validate(need(is.null(game()), label='Game is over'))
+  #     
+  #     mouse.at <- coords()
+  #     ID <- ID()
+  #     
+  #     #if the user enters an invalid click after he already entered his choice on the board, it will not affect the outcome of an answer submission
+  #     
+  #     if(clicks$A > clicks$B | clicks$A == 0){
+  #       validate(
+  #         need(!(mouse.at[[1]] > 3.5 | mouse.at[[1]] < 0.5 | mouse.at[[2]] > 3.5 | mouse.at[[2]] < 0.5), label='please enter a valid click')
+  #       )
+  #     }else if(clicks$A == clicks$B & ID == "answer" & XsAndOs[[ifelse(length(XsAndOs)==0,'',length(XsAndOs))]][3] %in% c(0,1) ){
+  #       #or, if the user enters an invalid click before entering a valid click, it will not crash the app
+  #       if(length(XsAndOs) == clicks$A){
+  #         validate(
+  #           need(!(mouse.at[[1]] > 3.5 | mouse.at[[1]] < 0.5 | mouse.at[[2]] > 3.5 | mouse.at[[2]] < 0.5), label='please enter a valid click')
+  #         )
+  #       }
+  #     }
+  #     
+  #     
+  #     warning(ID)
+  #     
+  #     #statement that checks the ID return from either of the input triggering events. choice or answer
+  #     
+  #     if(ID=="choice"){
+  #       mouse.at[[1]] <- round(mouse.at[[1]])
+  #       mouse.at[[2]] <- round(mouse.at[[2]])
+  #       x<<-mouse.at[[1]]
+  #       y<<-mouse.at[[2]]
+  #       
+  #       #     should this be length(XsAndOs) ?  6/14/18
+  #       
+  #       XsAndOs[[(length(container)+1)]] <<- c(mouse.at[[2]],(mouse.at[[1]]-.3),NULL)
+  #       leafletProxy("image", session) %>% addMarkers(lng=XsAndOs[[length(XsAndOs)]][1], lat=XsAndOs[[length(XsAndOs)]][2], layerId = "dummy")
+  #       
+  #     }else if(ID=="answer"){
+  #       value <<- values[[length(values)]]
+  #       if(container[length(container)]==0){
+  #         value[x, y] <<- 0
+  #       }else if(container[length(container)]==1){
+  #         value[x, y] <<- 1
+  #       }
+  #       values[[1]] <<- matrix(-3,3,3)
+  #       values[[(length(values)+1)]] <<- value
+  #       temp <<- which((values[[length(values)]] - values[[ (length(values)-1) ]])!=0)
+  #       values[[length(values)]][temp] <<- container[length(container)]
+  #       
+  #       #plotting part, this will overwrite what previously passed through the first if statement in this observe handler
+  #       
+  #       if(temp<4){
+  #         XsAndOs[[(length(XsAndOs))]][3] <<- ifelse(matrix(values[[length(values)]],3,3)[[temp]]==0, 0, 1)
+  #       }else if(temp<7){ 
+  #         XsAndOs[[(length(XsAndOs))]][3] <<- ifelse(matrix(values[[length(values)]],3,3)[[temp]]==0, 0, 1)
+  #       }else if(temp<10){
+  #         XsAndOs[[(length(XsAndOs))]][3] <<- ifelse(matrix(values[[length(values)]],3,3)[[temp]]==0, 0, 1)
+  #       }else{
+  #         stop("OH NO")
+  #       }
+  #       
+  #       leafletProxy("image", session)  %>% removeMarker(layerId = "dummy")
+  #       warning(XsAndOs[[length(XsAndOs)]][3])
+  #       if(!(XsAndOs[[length(XsAndOs)]][3] %in% c(0,1))){stop('VERY BAD')}
+  #       if(XsAndOs[[length(XsAndOs)]][3]==1){
+  #         leafletProxy("image", session)  %>% addMarkers(y,x+.56,icon = X.icon)
+  #       }else{
+  #         leafletProxy("image", session)  %>% addMarkers(y,x+.56,icon = O.icon)
+  #       }
+  #       
+  #       temp <- line()
+  #       game(temp) #reactiveVal syntax
+  #       message(temp)
+  #     }
+  #   }
+  # )  
+  # 
+  # #### alerts user of status of game (if it is over) ####
+  # #return from line() function
+  # output$gameMessage <- renderText({
+  #   validate(need(!is.null(game), label = 'Game is over'))
+  #   
+  #   game <- game()
+  #   game
+  # })
+  # 
+  # 
+  # ####render image of tic tac toe board####
+  # output$image <- renderLeaflet({
+  #   new.board
+  #   #  out = out %>% addMarkers(lng=temp[[1]],lat=temp[[2]], icon=tryCatch(ifelse(temp[[3]]==1, X.icon, O.icon), error=function(e)NULL))
+  # })
+  # 
+  # #### go button ####
+  # observeEvent(input$go, priority=1, {
+  #   updateTabItems(session, "tabs", "qqq")
+  # })
+  # observe({
+  #   validate(
+  #     need(is.null(input$image_click), message='')
+  #   )
+  #   output$directions <- renderText({"Begin by selecting the square on the tic-tac-toe grid you would like."})
+  # })
+  # 
+  # ####start over; new game####
+  # observeEvent(input$reset, priority = 5,{
+  #   if(!is.null(game())){
+  #     game(NULL)
+  #   }
+  #   leafletProxy("image", session) %>% clearMarkers()
+  #   
+  #   value <<- matrix(rep(-3,9),3,3)
+  #   values <<- list(value)
+  #   container <<- c()
+  #   XsAndOs <<- list()
+  #   #need to use scoping operator because i didnt create the (above) as reactive objects
+  #   clicks$A <- 0
+  #   clicks$B <- 0
+  #   clicks$C <- 0
+  #   
+  #   
+  #   #create arbitrary cut off of 9 questions (i would say its reasonable) keep in mind the quesiton bank has 18 questions
+  #   #if more than 9 questions have been answered, then we reset the question bank so that all questions can be drawn from
+  #   
+  #   if(length(which(answers() %in% c("correct","incorrect")))>9){
+  #     numbers$question <- c()
+  #   }else{
+  #     #put the incorrectly answered questions back into play
+  #     if("incorrect" %in% unique(answers())){
+  #       if("correct" %in% unique(answers())){
+  #         #numbers$question <- numbers$question[which((answers()=="correct"))] #we assign the taken questions to be only the correctly answered ones
+  #         numbers$question <- which(answers()=="correct") #we assign the taken questions to be only the correctly answered ones
+  #       }else{
+  #         numbers$question <- c() #since no answers were correct, all questions are in play
+  #       }
+  #     }
+  #     
+  #     #get rid of most recent question (but if it was answered correctly, it still will not be included)
+  #     numbers$question <- numbers$question[-length(numbers$question)]
+  #   }
+  #   
+  #   #resample to get new random question for when the game is restarted (when image is clicked)
+  #   
+  #   space<-c(1:Qs)
+  #   numbers$question[(length(numbers$question)+1)] <- sample(space[-tryCatch(if(numbers$question){numbers$question}, error=function(e) 29)], 1)
+  #   warning(numbers$question)
+  #   
+  #   updateButton(session, 'nextButton',  disabled = TRUE, style= 'danger')
+  #   output$directions <- renderText({"Begin by selecting the square on the plot you would like"})
+  # })
+  # 
+  # #temporary place holders, will be used as a logical pass to the conditional panel containing the renderUI output
+  # 
+  # observeEvent(input$image_click, {
+  #   validate(need(is.null(game()), label='Game is over'))
+  #   
+  #   output$temp <- renderText({'1'})
+  # })
+  # observeEvent(input$reset, priority = 8, {
+  #   output$temp <- renderText({'2'})
+  # })
+  # 
+  # 
+  # #### enact game over mode ####
+  # observeEvent(input$submit, priority = -1, {
+  #   validate(need(!is.null(game()), label='Game is over'))
+  #   
+  #   #make sure the player selected an answer when he pressed submit
+  #   
+  #   num <- as.character(numbers$question[length(numbers$question)])
+  #   
+  #   #     this has been hard coded to correspond with the number of questions in the question bank
+  #   
+  #   ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
+  #   validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
+  #   
+  #   updateButton(session, 'nextButton', 
+  #                disabled = TRUE)
+  #   updateButton(session, 'submit', 
+  #                disabled = TRUE)
+  #   output$directions <- renderText({"If you would like to play again, press 'Start new game'!"})
+  # })
+  # 
+  # 
+  # ######## QUESTIONS #########
+  # 
+  # 
+  # 
+  # 
+  # #### random question ####
+  # 
+  # numbers <- reactiveValues(question = c())
+  # observeEvent(input$image_click, once=TRUE, priority = 9, {
+  #   validate(need(is.null(game()), label='Game is over'))
+  #   
+  #   numbers$question[1] <- sample(1:Qs, 1)
+  #   updateButton(session, 'nextButton',  disabled = TRUE)
+  #   output$directions <- renderText({"Now answer the question and press submit"})
+  # })
+  # observeEvent(input$nextButton, priority = 4, {
+  #   space <- c(1:Qs)
+  #   numbers$question[(length(numbers$question)+1)] <- sample(space[-tryCatch(numbers$question, error=function(e) 29)], 1)
+  #   updateButton(session, 'nextButton',  disabled = TRUE)
+  #   output$directions <- renderText({"Now select another square on the board"})
+  #   if(clicks$A == (clicks$C + 1)){
+  #     updateButton(session, 'submit',  disabled = FALSE)
+  #     output$directions <- renderText({"Now answer the question and press submit"})
+  #   }
+  # })
+  # 
+  # 
+  # ####output random question####
+  # output$CurrentQuestion <- renderUI({
+  #   warning(numbers$question)
+  #   num <- as.character(numbers$question[length(numbers$question)])
+  #   warning(num)
+  #   temp <- NULL
+  #   
+  #   # THIS WAS NOT AS DYNAMIC
+  #   #if(num %in% c(1,2)){
+  #   #  numericInput(inputId = (num), bank[num, 2], min=0,max=100, val=0)
+  #   #}else if(num %in% c(3,4,7,10:12)){ 
+  #   #  radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4]), choiceValues = c("A", "B"),  selected = character(0))
+  #   #}else if(num %in% c(5,6,8,9,13:16)){
+  #   #  radioButtons(inputId = (num), label=ifelse(is.null(temp), bank[num, 2], temp), choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5], bank[num, 6]), choiceValues = c("A", "B", "C", "D"), selected = character(0))
+  #   #}else if(num %in% c(17,18)){
+  #   #  withMathJax(
+  #   #    h4(sprintf(
+  #   #      bank[num, 2]
+  #   #    ))
+  #   #  )
+  #   #  #temp <- ""
+  #   # }
+  #   
+  #   
+  #   
+  #   if(num %in% c(17,18)){
+  #     #this mathjax call is hard coded for specific questions in the CSV
+  #     withMathJax(
+  #       h4(sprintf(
+  #         bank[num, 2]
+  #       ))
+  #     )
+  #   }else if(!(FALSE %in% unique(as.vector(bank[num,3:6]=='')))){
+  #     numericInput(inputId = (num), bank[num, 2], min=0,max=1000, val=0)
+  #   }else if(!(FALSE %in% unique(as.vector(bank[num,5:6]=='')))){
+  #     radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4]), choiceValues = c("A", "B"),  selected = character(0))
+  #   }else if(bank[num,6]==''){
+  #     radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5]), choiceValues = c("A", "B", "C"), selected = character(0))
+  #   }else{
+  #     radioButtons(inputId = (num), label=(bank[num, 2]), choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5], bank[num, 6]), choiceValues = c("A", "B", "C", "D"), selected = character(0))
+  #   }
+  # })
+  # 
+  # #hard coded observer for specific questions in the csv
+  # output$CurrentQuestion.extra <- renderUI({
+  #   num <- as.character(numbers$question[length(numbers$question)])
+  #   if(num == 3){
+  #     img(src="CIQ3.png",height = 150,width = 500,align = "middle")
+  #   }else if(num == 4){
+  #     img(src="CIQ4.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 19){
+  #     img(src="CIQ19.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 20){
+  #     img(src="CIQ20.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 21){
+  #     img(src="CIQ21.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 22){
+  #     img(src="CIQ22.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 23){
+  #     img(src="CIQ3.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 24){
+  #     img(src="CIQ19.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 25){
+  #     img(src="CIQ19.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 26){
+  #     img(src="CIQ22.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 27){
+  #     img(src="CIQ19.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 28){
+  #     img(src="CIQ22.png",height = 150,width = 400,align = "middle")
+  #   }
+  #   else if(num == 17){
+  #     radioButtons(inputId = (num), label='', choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5]), choiceValues = c("A", "B", "C"), selected = character(0))
+  #   }else if(num == 18){
+  #     radioButtons(inputId = (num), label='', choiceNames=c(bank[num, 3], bank[num, 4], bank[num, 5], bank[num, 6]), choiceValues = c("A", "B", "C", "D"), selected = character(0))
+  #   }
+  # })  
+  # 
+  # 
+  # ####logical flow of answering questions; some extra code to deal with button disabling sequence####
+  # observeEvent(input$submit, {
+  #   #make sure the player selected an answer when he pressed submit
+  #   num <- as.character(numbers$question[length(numbers$question)])
+  #   #     this has been hard coded to correspond with the number of questions in the question bank
+  #   ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
+  #   validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
+  #   
+  #   updateButton(session, 'submit', disabled = TRUE)
+  #   
+  #   updateButton(session, 'nextButton',disabled = FALSE)
+  #   
+  #   output$directions <- renderText({"Now press the next button"})
+  # })
+  # observeEvent(input$image_click, {
+  #   validate(need(is.null(game()), label='Game is over'))
+  #   
+  #   if(!(clicks$A > (clicks$C + 1))){
+  #     updateButton(session, 'submit', disabled = FALSE)
+  #     output$directions <- renderText({"Now answer the question and press submit"})
+  #   }
+  # })
+  # 
+  # 
+  # ####checks answer####
+  # answers <- reactiveVal(c(rep('', Qs)))
+  # observeEvent(input$submit, {
+  #   #make sure the player selected an answer when he pressed submit
+  #   num <- as.character(numbers$question[length(numbers$question)])
+  #   #     this has been hard coded to correspond with the number of questions in the question bank
+  #   ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
+  #   validate(need((ans %in% c("A", "B", "C", "D", seq(0:1000))), label='please select one of the multiple choice responses'))
+  #   
+  #   temp <- answers()
+  #   num <- as.character(numbers$question[length(numbers$question)])
+  #   #this has been hard coded to correspond with the number of questions in the question bank
+  #   ans <- if(num==1){input$'1'}else if(num==2){input$'2'}else if(num==3){input$'3'}else if(num==4){input$'4'}else if(num==5){input$'5'}else if(num==6){input$'6'}else if(num==7){input$'7'}else if(num==8){input$'8'}else if(num==9){input$'9'}else if(num==10){input$'10'}else if(num==11){input$'11'}else if(num==12){input$'12'}else if(num==13){input$'13'}else if(num==14){input$'14'}else if(num==15){input$'15'}else if(num==16){input$'16'}else if(num==17){input$'17'}else if(num==18){input$'18'}else if(num==19){input$'19'}else if(num==20){input$'20'}else if(num==21){input$'21'}else if(num==22){input$'22'}else if(num==23){input$'23'}else if(num==24){input$'24'}else if(num==25){input$'25'}else if(num==26){input$'26'}else if(num==27){input$'27'}else if(num==28){input$'28'}
+  #   if(ans == bank[num, 8]){
+  #     temp2 <- "correct"
+  #   }else{
+  #     temp2 <- "incorrect"
+  #   }
+  #   temp[num] <- temp2
+  #   answers(temp)
+  #   container[(length(container)+1)] <<- ifelse(temp[num] == "correct", 1, 0)
+  # })
   
 }
   boastUtils::boastApp(ui = ui, server = server)
