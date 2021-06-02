@@ -338,7 +338,7 @@ ui <- list(
         tabItem(tabName = "qqq",
                 withMathJax(),
                 useShinyalert(),
-                h2("NHST Tic-Tac-Toe"),
+                h2("Regression Tic-Tac-Toe"),
                 p(
                   "To play, click on any one of the buttons that have a question mark. A question will appear to the right with possible answers. If you answer correctly, you will take the square; if not, the computer will take the square. Try your best to win the game!"
                 ),
@@ -357,6 +357,8 @@ ui <- list(
                     uiOutput("extraOutput"),
                     h3("Answer"),
                     uiOutput("answer"),
+                    uiOutput("mark"),
+                    uiOutput("feedback"),
                     bsButton(
                       inputId = "submit",
                       label = "Submit",
@@ -1157,6 +1159,31 @@ server <- function(input, output,session) {
                  disabled = TRUE)
   }
   
+  #Feedback ----
+ # observeEvent(
+ #   eventExpr = input$submit,
+ #   handlerExpr = {
+ #     output$mark <- renderUI({
+ #       index <- .tileIndex(activeBtn)
+ #         correct_answer <- questionBank[index, 16]
+ #         success <- input$answer == correct_answer
+ #         if (success) {
+ #           renderIcon(
+ #             icon = "correct",
+ #             width = "4"
+ #           )
+ #         }
+ #         else {
+ #           renderIcon(
+ #             icon = "incorrect",
+ #             width = 4
+ #           )
+ #         }
+ #       }
+ # )
+ #   }
+ # )
+ #    
   ## BEGIN App Specific xAPI Wrappers ----
   .generateStatement <- function(session, verb = NA, object = NA, description = NA) {
     if(is.na(object)){
@@ -1285,6 +1312,7 @@ server <- function(input, output,session) {
         disabled = TRUE
       )
       scoreMatrix <<- .score(scoreMatrix, activeBtn, 1)
+      
     } else {
       updateButton(
         session = session,
@@ -1293,6 +1321,7 @@ server <- function(input, output,session) {
         disabled = TRUE
       )
       scoreMatrix <<- .score(scoreMatrix, activeBtn,-1)
+      
     }
     
     # Check for game over states
@@ -1353,6 +1382,39 @@ server <- function(input, output,session) {
       )
     }
   })
+  
+  observeEvent(
+    eventExpr = input$submit,
+    handlerExpr = {
+      index <- .tileIndex(activeBtn)
+      answer <- ""
+      
+      if (gameSet[index, "format"] == "numeric") {
+        answer <- gameSet[index, "answer"]
+      } 
+      else {
+        answer <- gameSet[index, gameSet[index, "answer"]]
+      }
+      
+      success <- input$ans == answer
+      if (success) {
+        output$mark <- renderIcon(
+          icon = "correct",
+          width = 100
+        )
+      }
+      else {
+        output$mark <- renderIcon(
+          icon = "incorrect",
+          width = 100
+        )
+        output$feedback <- renderUI(
+          paste("Your answer is incorrect. The correct answer is", answer, ".")
+        )
+      }
+    },
+    ignoreNULL = TRUE
+  )
   
   observeEvent(input$tabs, {
     if (input$tabs == "qqq") {
