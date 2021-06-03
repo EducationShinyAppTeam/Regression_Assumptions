@@ -5,7 +5,6 @@ library(shinyBS)
 library(V8)
 library(shinyjs)
 library(shinyalert)
-#library(discrimARTs)
 library(leaflet)
 library(raster)
 library(DT)
@@ -45,10 +44,10 @@ ui <- list(
                     )
     ),
     
-    #adding prereq and game tabs ----
+    #adding pages to sidebar ----
     dashboardSidebar(
       width = 220,
-      sidebarMenu(id = "tabs",
+      sidebarMenu(id = "pages",
                   menuItem(text = "Overview",
                            tabName = "instruction", 
                            icon = icon("dashboard")
@@ -211,13 +210,6 @@ ui <- list(
                                   "none"), 
                                 selected = "nonex"
                     ),
-                    # bsPopover(id = "x",
-                    #           title = "Transformation Hint", 
-                    #           content = "Transform X when non-linearity is in question",
-                    #           placement = "top", 
-                    #           trigger = "click", 
-                    #           options = NULL
-                    #           ),
                     sliderInput("x1v", 
                                 "x1 Variance:", 
                                 min = 0, 
@@ -240,13 +232,6 @@ ui <- list(
                                   "none"),
                                 selected = "nonex2"
                     ),
-                    # bsPopover(id = "x2",
-                    #           title = "Transformation Hint", 
-                    #           content = "Transform X when non-linearity is in question",
-                    #           placement = "top", 
-                    #           trigger = "click", 
-                    #           options = NULL
-                    #           ),
                     sliderInput("x2v", 
                                 "x2 Variance:", 
                                 min = 0, 
@@ -342,8 +327,10 @@ ui <- list(
                 withMathJax(),
                 useShinyalert(),
                 h2("Regression Tic-Tac-Toe"),
-                p(
-                  "To play, click on any one of the buttons that have a question mark. A question will appear to the right with possible answers. If you answer correctly, you will take the square; if not, the computer will take the square. Try your best to win the game!"
+                p("To play, click on any one of the buttons that have a question
+                  mark. A question will appear to the right with possible answers. 
+                  If you answer correctly, you will take the square; if not, the 
+                  computer will take the square. Try your best to win the game!"
                 ),
                 h3(uiOutput("player")),
                 fluidRow(
@@ -382,59 +369,8 @@ ui <- list(
                     uiOutput("trigger2")
                   )
                 )
-                
-                # fluidRow(
-                #   h2("Tic-Tac-Toe"),
-                #   h4("You will get an X for a correct answers and the computer will 
-                #   get an O for a wrong answer.")
-                # ),
-                # fluidRow(
-                #   column(4,
-                #          leafletOutput('image'),
-                #          br(),
-                #          textOutput("warning"),
-                #          textOutput("gameMessage")
-                #   ),
-                #   column(8,
-                #          conditionalPanel("output.temp != 2",
-                #                           conditionalPanel(
-                #                             "input.image_click",
-                #                             uiOutput("CurrentQuestion"),
-                #                             uiOutput("CurrentQuestion.extra"),
-                #                             br(),
-                #                             br(),
-                #                             br()
-                #                           ),
-                #                           textOutput("directions"),
-                #                           br()
-                #          )
-                #   ),
-                #   
-                #   column(2,
-                #          bsButton(
-                #            inputId = 'submit', 
-                #            label = 'Submit Answer', 
-                #            style = 'danger')
-                #   ),
-                #   column(1,
-                #          bsButton(
-                #            inputId = "nextButton",
-                #            label = "Next Question", 
-                #            style = 'danger')
-                #   )
-                # ),
-                # fluidRow(
-                #   column(
-                #     width = 12, 
-                #     offset = 5,
-                #     br(),
-                #     bsButton(inputId = "reset", 
-                #              label = "Start new game", 
-                #              style = 'danger'
-                #     )
-                #   )
-                # )
         ),
+# Reference page ----
         tabItem(
           tabName = "refs",
           withMathJax(),
@@ -477,12 +413,15 @@ ui <- list(
 #bankc for challenge bank
 
 bankc <- read.csv("ChallengeOutput.csv")
-bankc = data.frame(lapply(bankc, as.character), stringsAsFactors = FALSE)
+bankc = data.frame(
+  lapply(bankc, 
+         as.character), 
+  stringsAsFactors = FALSE)
 
 
 # Server ----
 
-server <- function(input, output,session) {
+server <- function(input, output, session) {
   
 #Go buttons ---- 
   observeEvent(input$infoex,{
@@ -507,7 +446,7 @@ server <- function(input, output,session) {
     handlerExpr = {
       updateTabItems(
         session = session,
-        inputId = "tabs",
+        inputId = "pages",
         selected = "prereq")
     })
   
@@ -516,7 +455,7 @@ server <- function(input, output,session) {
     handlerExpr = {
       updateTabItems(
         session = session,
-        inputId = "tabs",
+        inputId = "pages",
         selected = "explore")
     })
   
@@ -525,7 +464,7 @@ server <- function(input, output,session) {
     handlerExpr = {
       updateTabItems(
         session = session, 
-        inputId = "tabs", 
+        inputId = "pages", 
         selected = "qqq")
     })
 #Gray out buttons ----
@@ -571,311 +510,380 @@ server <- function(input, output,session) {
   observeEvent(input$go | input$submitD, {
     output$plots=
       renderPlot({
-        
-        if(input$model == "Model 1"){
-          nonex<- rnorm(input$n,3,input$x1v)
-          nonex2<- rnorm(input$n,3,input$x2v)
-          e<- rnorm(input$n,0,.2**2)
-          y<- (rnorm(input$n,3,input$yv))**2
+        if(input$model == "Model 1") {
+          nonex <- rnorm(input$n,
+                         3,
+                         input$x1v)
+          nonex2 <- rnorm(input$n,
+                          3,
+                          input$x2v)
+          e <- rnorm(
+            input$n,
+            0,
+            .2**2)
+          y <- (rnorm
+                (input$n,
+                  3,
+                  input$yv)
+                )**2
           
-          logx<- log(nonex)
-          logx2<-log(nonex2)
-          logy<- log(y)
+          logx <- log(nonex)
+          logx2 <-log(nonex2)
+          logy <- log(y)
+    
+          expx <- sqrt(nonex)
+          expx2 <- sqrt(nonex2)
+          expy <- sqrt(y)
+        }
+        else if (input$model == "Model 2") {
+          nonex <- rnorm(input$n,
+                         3,
+                         input$x1v)**2
+          nonex2 <- rnorm(input$n,
+                          3,
+                          input$x2v)**2
+          e <- rnorm(input$n,
+                     0,
+                     .2**2)
+          y <- (rnorm
+                (input$n,
+                  3,
+                  input$yv)
+                )
           
-          expx<- sqrt(nonex)
-          expx2<- sqrt(nonex2)
-          expy<- sqrt(y)
-        } else if (input$model == "Model 2"){
-          nonex<- rnorm(input$n,3,input$x1v)**2
-          nonex2<- rnorm(input$n,3,input$x2v)**2
-          e<- rnorm(input$n,0,.2**2)
-          y<- (rnorm(input$n,3,input$yv))
+          logx <- log(nonex)
+          logx2 <-log(nonex2)
+          logy <- log(y)
           
-          logx<- log(nonex)
-          logx2<-log(nonex2)
-          logy<- log(y)
+          expx <- sqrt(nonex)
+          expx2 <- sqrt(nonex2)
+          expy <- sqrt(y)
+        }
+        else {
+          nonex <- rnorm(input$n,
+                         3,
+                         input$x1v)**2
+          nonex2 <- rnorm(input$n,
+                          3,
+                          input$x2v)**2
+          e <- rnorm(input$n,
+                     0,
+                     .2**2)
+          y <- (rnorm
+                (input$n,
+                  3,
+                  input$yv))**2
           
-          expx<- sqrt(nonex)
-          expx2<- sqrt(nonex2)
-          expy<- sqrt(y)
-        }else{
-          nonex<- rnorm(input$n,3,input$x1v)**2
-          nonex2<- rnorm(input$n,3,input$x2v)**2
-          e<- rnorm(input$n,0,.2**2)
-          y<- (rnorm(input$n,3,input$yv))**2
+          logx <- log(nonex)
+          logx2 <-log(nonex2)
+          logy <- log(y)
           
-          logx<- log(nonex)
-          logx2<-log(nonex2)
-          logy<- log(y)
-          
-          expx<- sqrt(nonex)
-          expx2<- sqrt(nonex2)
-          expy<- sqrt(y)
+          expx <- sqrt(nonex)
+          expx2 <- sqrt(nonex2)
+          expy <- sqrt(y)
         }
         
-        for (i in c(input$x)){ for(j in c(input$x2)) {for( k in  c(input$y)){
-          if (any(i == "none")& any(j== "none")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model= lm(y~nonex+nonex2+e)
+        for (i in c(input$x)) { 
+          for(j in c(input$x2)) {
+            for( k in  c(input$y)) {
+          if (any(i == "none") & any(j == "none") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model = lm(y~nonex+nonex2+e)
             plot(model)
           } 
-          else if (any(i == "none")& any(j== "logx2")&any(k== "none")) {
-            par(mfrow=c(2,2))
-            model2= lm(y~nonex+logx2+e)
+          else if (any(i == "none") & any(j == "logx2") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model2 = lm(y~nonex+logx2+e)
             plot(model2)
           }
-          
-          else if(any(i == "none")& any(j== "sqrtx2")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model3= lm(y~nonex+expx2+e)
+          else if(any(i == "none") & any(j == "sqrtx2") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model3 = lm(y~nonex+expx2+e)
             plot(model3)
           }
-          
-          else if(any(i == "logx")& any(j== "none")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model4= lm(y~logx+nonex2+e)
+          else if(any(i == "logx") & any(j == "none") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model4 = lm(y~logx+nonex2+e)
             plot(model4)
           }
-          
-          else if(any(i == "logx")& any(j== "logx2")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model5= lm(y~logx+logx2+e)
+          else if(any(i == "logx") & any(j == "logx2") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model5 = lm(y~logx+logx2+e)
             plot(model5)
           }
-          
-          else if(any(i == "logx")& any(j== "sqrtx2")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model6= lm(y~logx+expx2+e)
+          else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model6 = lm(y~logx+expx2+e)
             plot(model6)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "none")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model7= lm(y~expx+nonex2+e)
+          else if(any(i == "sqrtx") & any(j == "none") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model7 = lm(y~expx+nonex2+e)
             plot(model7)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "logx2")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model8= lm(y~expx+logx2+e)
+          else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model8 = lm(y~expx+logx2+e)
             plot(model8)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "sqrtx2")&any(k== "none")){
-            par(mfrow=c(2,2))
-            model9= lm(y~expx+expx2+e)
+          else if(any(i == "sqrtx") & any(j == "sqrtx2") & any(k == "none")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model9 = lm(y~expx+expx2+e)
             plot(model9)
           }
-          
-          else if(any(i == "none")& any(j== "nonex2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model10= lm(logy~nonex+nonex2+e)
+          else if(any(i == "none") & any(j == "nonex2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model10 = lm(logy~nonex+nonex2+e)
             plot(model10)
           }
-          
-          else if(any(i == "none")& any(j== "logx2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model11= lm(logy~nonex+logx2+e)
+          else if(any(i == "none") & any(j == "logx2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model11 = lm(logy~nonex+logx2+e)
             plot(model11)
           }
-          
-          else if(any(i == "none")& any(j== "sqrtx2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model12= lm(logy~nonex+expx2+e)
+          else if(any(i == "none") & any(j == "sqrtx2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model12 = lm(logy~nonex+expx2+e)
             plot(model12)
           }
-          
-          else if(any(i == "logx")& any(j== "nonex2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model13= lm(logy~logx+nonex2+e)
+          else if(any(i == "logx") & any(j == "nonex2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model13 = lm(logy~logx+nonex2+e)
             plot(model13)
           }
-          
-          else if(any(i == "logx")& any(j== "logx2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model14= lm(logy~logx+logx2+e)
+          else if(any(i == "logx") & any(j == "logx2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              ) 
+            model14 = lm(logy~logx+logx2+e)
             plot(model14)
           }
-          
-          else if(any(i == "logx")& any(j== "sqrtx2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model15= lm(logy~logx+expx2+e)
+          else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model15 = lm(logy~logx+expx2+e)
             plot(model15)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "nonex2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model16= lm(logy~expx+nonex2+e)
+          else if(any(i == "sqrtx") & any(j == "nonex2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model16 = lm(logy~expx+nonex2+e)
             plot(model16)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "logx2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model17= lm(logy~expx+logx2+e)
+          else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model17 = lm(logy~expx+logx2+e)
             plot(model17)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "sqrtx2")&any(k== "logy")){
-            par(mfrow=c(2,2))
-            model18= lm(logy~expx+expx2+e)
+          else if(any(i == "sqrtx") & any(j == "sqrtx2") & any(k== "logy")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model18 = lm(logy~expx+expx2+e)
             plot(model18)
           }
-          
-          else if(any(i == "none")& any(j== "nonex2")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model19= lm(expy~nonex+nonex2+e)
+          else if(any(i == "none") & any(j == "nonex2") & any(k == "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model19 = lm(expy~nonex+nonex2+e)
             plot(model19)
           }
-          
-          else if(any(i == "none")& any(j== "logx2")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model20= lm(expy~nonex+logx2+e)
+          else if(any(i == "none") & any(j == "logx2") & any(k == "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model20 = lm(expy~nonex+logx2+e)
             plot(model20)
           }
-          
-          else if(any(i == "none")& any(j== "sqrtx2")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model21= lm(expy~nonex+expx2+e)
+          else if(any(i == "none") & any(j == "sqrtx2") & any(k == "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model21 = lm(expy~nonex+expx2+e)
             plot(model21)
           }
-          
-          else if(any(i == "logx")& any(j== "none")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model22= lm(expy~logx+nonex2+e)
+          else if(any(i == "logx") & any(j == "none") & any(k == "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model22 = lm(expy~logx+nonex2+e)
             plot(model22)
           }
-          
-          else if(any(i == "logx")& any(j== "logx2")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model23= lm(expy~logx+logx2+e)
+          else if(any(i == "logx") & any(j == "logx2") & any(k== "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model23 = lm(expy~logx+logx2+e)
             plot(model23)
           }
-          
-          else if(any(i == "logx")& any(j== "sqrtx2")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model24= lm(expy~logx+expx2+e)
+          else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model24 = lm(expy~logx+expx2+e)
             plot(model24)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "none")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model25= lm(expy~expx+nonex2+e)
+          else if(any(i == "sqrtx") & any(j == "none") & any(k== "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model25 = lm(expy~expx+nonex2+e)
             plot(model25)
           }
-          
-          else if(any(i == "sqrtx")& any(j== "logx2")&any(k== "sqrty")){
-            par(mfrow=c(2,2))
-            model26= lm(expy~expx+logx2+e)
+          else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "sqrty")) {
+            par(
+              mfrow = c(2,2)
+              )
+            model26 = lm(expy~expx+logx2+e)
             plot(model26)
           }
-          
           else {
-            par(mfrow=c(2,2))
-            model27= lm(expy~expx+expx2+e)
+            par(
+              mfrow = c(2,2)
+              )
+            model27 = lm(expy~expx+expx2+e)
             plot(model27)
           }
-        }}} 
+            }
+          }
+          } 
       })
     
     
-    ####end of observeeventsubmit     
+    #end of observeeventsubmit     
   })
   
   index <- reactiveValues(index=7)
   
-  ######################### This section is to output a new activity ############################
+  #Outputting a new activity ----
   
   observeEvent(input$challenge | input$go, {
-    index$index <- sample(1:20,1, replace=FALSE, prob=NULL)
+    index$index <- sample(x = 1:20,
+                          size = 1, 
+                          replace=FALSE, 
+                          prob=NULL
+                          )
     
     output$challenges <- renderUI ({
-      if (index$index == 1){
+      if (index$index == 1) {
         h4(bankc[1,2])
       } 
-      else if (index$index == 2){
+      else if (index$index == 2) {
         h4(bankc[2,2])
       }
-      else if (index$index == 3){
+      else if (index$index == 3) {
         h4(bankc[3,2])
       }
-      else if (index$index == 4){
+      else if (index$index == 4) {
         h4(bankc[4,2])
       }
-      else if (index$index == 5){
+      else if (index$index == 5) {
         h4(bankc[5,2])
       }
-      else if (index$index == 6){
+      else if (index$index == 6) {
         h4(bankc[6,2])
       }
-      else if (index$index == 7){
+      else if (index$index == 7) {
         h4(bankc[7,2])
       }
-      else if (index$index == 8){
+      else if (index$index == 8) {
         h4(bankc[8,2])
       }
-      else if (index$index == 9){
+      else if (index$index == 9) {
         h4(bankc[9,2])
       }
-      else if (index$index == 10){
+      else if (index$index == 10) {
         h4(bankc[10,2])
       }
-      else if (index$index == 11){
+      else if (index$index == 11) {
         h4(bankc[11,2])
       }
-      else if (index$index == 12){
+      else if (index$index == 12) {
         h4(bankc[12,2])
       }
-      else if (index$index == 13){
+      else if (index$index == 13) {
         h4(bankc[13,2])
       }
-      else if (index$index == 14){
-        h4(bankc[14,2])
+      else if (index$index == 14) {
+        h4(bankc[14,2]) 
       }
-      else if (index$index == 15){
+      else if (index$index == 15) {
         h4(bankc[15,2])
       }
-      else if (index$index == 16){
+      else if (index$index == 16) {
         h4(bankc[16,2])
       }
-      else if (index$index == 17){
+      else if (index$index == 17) {
         h4(bankc[17,2])
       }
-      else if (index$index == 18){
+      else if (index$index == 18) {
         h4(bankc[18,2])
       }
-      else if (index$index == 19){
+      else if (index$index == 19) {
         h4(bankc[19,2])
       }
-      else if (index$index == 20){
+      else if (index$index == 20) {
         h4(bankc[20,2])
       }
-      
     }
     )
-    
   })
   
-  ########################## Output for answer box when nothing is in the box #############################
-  
+  #Output for answer box when nothing is in the box ----
   observeEvent(
     eventExpr = input$challenge,
     handlerExpr = {
-      output$answers <- renderText("Please hit the view feedback button for feedback")
-    }) 
-  
+      output$answers <- 
+        renderText("Please hit the view feedback button for feedback")
+    }
+    ) 
   observeEvent(
     eventExpr = input$go,
     handlerExpr = {
-      output$answers <- renderText("Please hit the view feedback button for feedback")
-    })  
+      output$answers <- 
+        renderText("Please hit the view feedback button for feedback")
+    }
+    )  
   observeEvent(
     eventExpr = input$start,
     handlerExpr = {
-      output$answers <- renderText("Please hit the view feedback button for feedback")
-    }) 
-  
-  ###################### output of the answers ################################
-  
+      output$answers <- 
+        renderText("Please hit the view feedback button for feedback")
+    }
+    ) 
+
+  #output of the answers ----
   observeEvent(
     eventExpr = input$answer,
     handlerExpr = {
@@ -939,15 +947,12 @@ server <- function(input, output,session) {
         }
         else if (index$index == 20){
           h4(bankc[20,3])
-        } 
-        
+        }
       }
       )
     }
   )
-  
   #Tic tac toe ----
-  
   # Variables
   activeBtn <- NA
   activeQuestion <- NA
@@ -955,48 +960,51 @@ server <- function(input, output,session) {
   opponent <- NA
   scoreMatrix <-
     matrix(
-      data = rep.int(0, times = TILE_COUNT),
+      data = rep.int(0, 
+                     times = TILE_COUNT),
       nrow = GRID_SIZE,
       ncol = GRID_SIZE
     )
   gameProgress <- FALSE
   
   # Helper Functions
-  .tileCoordinates <- function(tile = NULL, index = NULL) {
+  .tileCoordinates <- function(tile = NULL, 
+                               index = NULL) {
     row <- -1
     col <- -1
-    
     # if: button tile is given, derive from id
     # else: derive from index
     if (!is.null(tile)) {
       # grid-[row]-[col]
-      tile <- strsplit(tile, "-")[[1]]
+      tile <- strsplit(x = tile, 
+                       split = "-")[[1]]
       tile <- tile[-1] # remove oxo
-      
-      row <- strtoi(tile[1])
-      col <- strtoi(tile[2])
-    } else {
+      row <- strtoi(
+        x = tile[1])
+      col <- strtoi(
+        x = tile[2])
+    } 
+    else {
       row <- (index - 1) %/% GRID_SIZE + 1
       col <- index - (GRID_SIZE * (row - 1))
     }
-    
     coordinates <- list("row" = row,
                         "col" = col)
-    
     return(coordinates)
   }
   
   .tileIndex <- function(tile) {
     coords <- .tileCoordinates(tile)
-    
     index = GRID_SIZE * (coords$row - 1) + coords$col
-    
     return(index)
   }
   
   .btnReset <- function(index) {
     coords <- .tileCoordinates(index = index)
-    id <- paste0("grid-", coords$row, "-", coords$col)
+    id <- paste0("grid-", 
+                 coords$row, 
+                 sep = "-", 
+                 coords$col)
     updateButton(
       session = session,
       inputId = id,
@@ -1007,9 +1015,7 @@ server <- function(input, output,session) {
   
   .score <- function(score, tile, value) {
     i <- .tileCoordinates(tile)
-    
     score[i$row, i$col] <- value
-    
     return(score)
   }
   
@@ -1019,43 +1025,51 @@ server <- function(input, output,session) {
     
     if (GRID_SIZE > 1) {
       mainD <- sum(diag(mat))
-      rotated <- apply(t(mat), 2, rev)
+      rotated <- apply(X = t(mat), 
+                       MARGIN = 2,
+                       FUN = rev)
       offD <- sum(diag(rotated))
-      
       if (GRID_SIZE %in% rows ||
           GRID_SIZE %in% cols ||
           mainD == GRID_SIZE || offD == GRID_SIZE) {
         return("win")
-      } else if (-GRID_SIZE %in% rows ||
+      } 
+      else if (-GRID_SIZE %in% rows ||
                  -GRID_SIZE %in% cols == 1 ||
                  mainD == -GRID_SIZE || offD == -GRID_SIZE) {
         return("lose")
-      } else if (any(mat == 0)) {
+      } 
+      else if (any(mat == 0)) {
         return("continue")
-      } else {
+      } 
+      else {
         return("draw")
       }
-    } else {
-      ifelse(rows == 1 && rows != 0, return("win"), return("lose"))
-    }
+    } 
+    else {
+      ifelse(test = rows == 1 && rows != 0, 
+             yes = return("win"), 
+             no = return("lose")
+             )
+     }
   }
   
   .boardBtn <- function(tile) {
     index <- .tileIndex(tile)
     activeQuestion <<- gameSet[index, "id"]
-    
     output$question <- renderUI({
       withMathJax()
       return(gameSet[index, "question"])
-    })
-    
+    }
+    )
     output$answer <- .ansFunc(index, gameSet)
     
     if (gameSet[index, "extraOutput"] != "") {
       output$extraOutput <- renderText({
               gameSet[index, "extraOutput"]
       })
-    } else {
+    } 
+    else {
       output$extraOutput <- NULL
     }
     
@@ -1080,12 +1094,14 @@ server <- function(input, output,session) {
                      label = df[index, "label"],
                      value = 0)
       })
-    } else if (df[index, "format"] == "two") {
+    } 
+    else if (df[index, "format"] == "two") {
       renderUI({
         radioGroupButtons(
           inputId = "ans",
           choices = list(df[index, "A"],
-                         df[index, "B"]),
+                         df[index, "B"]
+                         ),
           selected = character(0),
           checkIcon = list(
             yes = icon("check-square"),
@@ -1096,13 +1112,15 @@ server <- function(input, output,session) {
           individual = TRUE
         )
       })
-    } else if (df[index, "format"] == "three") {
+    } 
+    else if (df[index, "format"] == "three") {
       renderUI({
         radioGroupButtons(
           inputId = "ans",
           choices = list(df[index, "A"],
                          df[index, "B"],
-                         df[index, "C"]),
+                         df[index, "C"]
+                         ),
           selected = character(0),
           checkIcon = list(
             yes = icon("check-square"),
@@ -1112,14 +1130,16 @@ server <- function(input, output,session) {
           direction = "vertical"
         )
       })
-    } else {
+    } 
+    else {
       renderUI({
         radioGroupButtons(
           inputId = "ans",
           choices = list(df[index, "A"],
                          df[index, "B"],
                          df[index, "C"],
-                         df[index, "D"]),
+                         df[index, "D"]
+                         ),
           selected = character(0),
           checkIcon = list(
             yes = icon("check-square"),
@@ -1135,7 +1155,9 @@ server <- function(input, output,session) {
   .gameReset <- function() {
     lapply(1:TILE_COUNT, .btnReset)
     qSelected <<-
-      sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
+      sample(seq_len(nrow(questionBank)), 
+             size = TILE_COUNT, 
+             replace = FALSE)
     gameSet <<- questionBank[qSelected,]
     
     output$question <-
@@ -1150,7 +1172,8 @@ server <- function(input, output,session) {
     })
     scoreMatrix <<-
       matrix(
-        data = rep.int(0, times = TILE_COUNT),
+        data = rep.int(0, 
+                       times = TILE_COUNT),
         nrow = GRID_SIZE,
         ncol = GRID_SIZE
       )
@@ -1163,9 +1186,13 @@ server <- function(input, output,session) {
   }
  
   ## BEGIN App Specific xAPI Wrappers ----
-  .generateStatement <- function(session, verb = NA, object = NA, description = NA) {
+  .generateStatement <- function(session, 
+                                 verb = NA, 
+                                 object = NA, 
+                                 description = NA) {
     if(is.na(object)){
-      object <- paste0("#shiny-tab-", session$input$tabs)
+      object <- paste0("#shiny-tab-", 
+                       session$input$pages)
     }
     
     stmt <- boastUtils::generateStatement(
@@ -1175,30 +1202,41 @@ server <- function(input, output,session) {
       description = description
     )
     
-    response <- boastUtils::storeStatement(session, stmt)
-    
+    response <- boastUtils::storeStatement(session = session, 
+                                           statement = stmt)
     return(response)
   }
   
-  .generateAnsweredStatement <- function(session, verb = NA, object = NA, description = NA, interactionType = NA, response = NA, success = NA, completion = FALSE) {
+  .generateAnsweredStatement <- function(session, 
+                                         verb = NA, 
+                                         object = NA, 
+                                         description = NA, 
+                                         interactionType = NA, 
+                                         response = NA, 
+                                         success = NA, 
+                                         completion = FALSE) {
     
     stmt <- boastUtils::generateStatement(
       session,
       verb = verb,
       object = object,
-      description = paste0("Question ", activeQuestion, ": ", description),
+      description = paste0("Question ", 
+                           activeQuestion, 
+                           sep = ": ", 
+                           description),
       interactionType = interactionType,
       success = success,
       response = response,
       completion = completion,
       extensions = list(
         ref = "https://educationshinyappteam.github.io/BOAST/xapi/result/extensions/scoreMatrix",
-        value = paste(as.data.frame(scoreMatrix), collapse = ", ")
+        value = paste(as.data.frame(scoreMatrix), 
+                      collapse = ", ")
       )
     )
     
-    response <- boastUtils::storeStatement(session, stmt)
-    
+    response <- boastUtils::storeStatement(session = session, 
+                                           statement = stmt)
     return(response)
   }
   ## END App Specific xAPI Wrappers ----
@@ -1207,7 +1245,9 @@ server <- function(input, output,session) {
   observeEvent(
     eventExpr = input$go1, 
     handlerExpr = {
-    updateTabItems(session, "tabs", "qqq")
+    updateTabItems(session = session, 
+                   inputId = "pages", 
+                   selected = "qqq")
   })
   
   # Read in data and generate the first subset ----
@@ -1216,12 +1256,18 @@ server <- function(input, output,session) {
              stringsAsFactors = FALSE,
              as.is = TRUE)
   qSelected <-
-    sample(seq_len(nrow(questionBank)), size = TILE_COUNT, replace = FALSE)
+    sample(x = seq_len(nrow(questionBank)), 
+           size = TILE_COUNT, 
+           replace = FALSE)
   gameSet <- questionBank[qSelected,]
   
   # Program the Reset Button
-  observeEvent(input$reset, {
-    .generateStatement(session, object = "reset", verb = "interacted", description = "Game board has been reset.")
+  observeEvent(eventExpr = input$reset, 
+               handlerExpr = {
+    .generateStatement(session, 
+                       object = "reset", 
+                       verb = "interacted", 
+                       description = "Game board has been reset.")
     .gameReset()
   })
   
@@ -1229,14 +1275,20 @@ server <- function(input, output,session) {
   output$gameBoard <- renderUI({
     board <- list()
     index <- 1
-    
-    sapply(1:GRID_SIZE, function(row) {
-      sapply(1:GRID_SIZE, function(column) {
-        id <- paste0("grid-", row, "-", column)
-        
+    sapply(X = 1:GRID_SIZE, 
+           FUN = function(row) {
+      sapply(X = 1:GRID_SIZE, 
+             FUN = function(column) {
+        id <- paste0("grid-", 
+                     row, 
+                     sep = "-", 
+                     column)
         board[[index]] <<- tags$li(
           actionButton(
-            inputId = paste0("grid-", row, "-", column),
+            inputId = paste0("grid-", 
+                             row, 
+                             sep = "-", 
+                             column),
             label = "?",
             color = "primary",
             style = "bordered",
@@ -1245,174 +1297,229 @@ server <- function(input, output,session) {
           class = "grid-tile"
         )
         
-        observeEvent(session$input[[id]], {
-          activeBtn <<- id
-          .boardBtn(id)
-          .generateStatement(session, object = activeBtn, verb = "interacted", description = paste0("Tile ", activeBtn, " selected. Rendering question: ", activeQuestion, "."))
-        })
+        observeEvent(eventExpr = session$input[[id]], 
+                     handlerExpr = {
+                       activeBtn <<- id
+                       .boardBtn(id)
+                       .generateStatement(session, 
+                                          object = activeBtn, 
+                                          verb = "interacted", 
+                                          description = paste0("Tile ", 
+                                                               activeBtn, 
+                                                               " selected. Rendering question: ", 
+                                                               activeQuestion, 
+                                                               ".")
+                                          )
+                       }
+                     )
         
         index <<- index + 1
       })
     })
     
-    tags$ol(board, class = paste(
-      "grid-board",
-      "grid-fill",
-      paste0("grid-", GRID_SIZE, "x", GRID_SIZE)
-    ))
-  })
+    tags$ol(board, 
+            class = paste(
+             "grid-board",
+             "grid-fill",
+             paste0("grid-", 
+                    GRID_SIZE, 
+                    "x", 
+                    GRID_SIZE)
+             ))
+   })
   
   # Program Submit Button ----
-  observeEvent(input$submit, {
-    index <- .tileIndex(activeBtn)
-    answer <- ""
-    
-    if (gameSet[index, "format"] == "numeric") {
-      answer <- gameSet[index, "answer"]
-    } else {
-      answer <- gameSet[index, gameSet[index, "answer"]]
-    }
-    
-    success <- input$ans == answer
-    
-    if (is.null(success) || length(success) == 0) {
-      sendSweetAlert(
-        session = session,
-        title = "Error",
-        text = "Please select an answer before pressing Submit.",
-        type = "error"
-      )
-    } else if (success) {
-      updateButton(
-        session = session,
-        inputId = activeBtn,
-        label = player,
-        disabled = TRUE
-      )
-      scoreMatrix <<- .score(scoreMatrix, activeBtn, 1)
-      
-      output$mark <- renderIcon(
-        icon = "correct",
-        width = 100
-      )
-      
-    } else {
-      updateButton(
-        session = session,
-        inputId = activeBtn,
-        label = opponent,
-        disabled = TRUE
-      )
-      scoreMatrix <<- .score(scoreMatrix, activeBtn,-1)
-      
-      output$mark <- renderIcon(
-        icon = "incorrect",
-        width = 100
-      )
-      output$feedback <- renderUI(
-        paste("Your answer is incorrect. The correct answer is", answer, ".")
-      )
-      
-    }
-    
-    # Check for game over states
-    .gameState <- .gameCheck(scoreMatrix)
-    completion <- ifelse(.gameState == "continue", FALSE, TRUE)
-    interactionType <- ifelse(gameSet[index,]$format == "numeric", "numeric", "choice")
-    
-    .generateAnsweredStatement(
-      session,
-      object = activeBtn,
-      verb = "answered",
-      description = gameSet[index,]$question,
-      response = input$ans,
-      interactionType = interactionType,
-      success = success,
-      completion = completion
-    )
-    
-    if (.gameState == "win") {
-      .generateStatement(session, object = "qqq", verb = "completed", description = "Player has won the game.")
-      confirmSweetAlert(
-        session = session,
-        inputId = "endGame",
-        title = "You Win!",
-        text = "You've filled either a row, a column, or a main diagonal. Start over and play a new game.",
-        btn_labels = "Start Over"
-      )
-    } else if (.gameState == "lose") {
-      .generateStatement(session, object = "qqq", verb = "completed", description = "Player has lost the game.")
-      confirmSweetAlert(
-        session = session,
-        inputId = "endGame",
-        title = "You lose :(",
-        text = "Take a moment to review the concepts and then try again.",
-        btn_labels = "Start Over"
-      )
-    } else if (.gameState == "draw") {
-      .generateStatement(session, object = "game", verb = "completed", description = "Game has ended in a draw.")
-      confirmSweetAlert(
-        session = session,
-        inputId = "endGame",
-        title = "Draw!",
-        text = "Take a moment to review the concepts and then try again.",
-        btn_labels = "Start Over"
-      )
-    }
-    if (is.null(success) || length(success) == 0) {
-      updateButton(
-        session = session,
-        inputId = "submit",
-        disabled = FALSE
-      )
-    } else{
-      updateButton(
-        session = session,
-        inputId = "submit",
-        disabled = TRUE
-      )
-    }
-    disabled = TRUE
-  })
-
-  observeEvent(input$tabs, {
-    if (input$tabs == "qqq") {
-      if (!gameProgress) {
-        shinyalert(
-          title = "Player Select",
-          text = "Select whether you want to play as O or X.",
-          showConfirmButton = TRUE,
-          confirmButtonText = "Play as X",
-          showCancelButton = TRUE,
-          cancelButtonText = "Play as O"
-        )
-        gameProgress <<- TRUE
-      }
-    }
-    .generateStatement(session, verb = "experienced", description = paste0("Navigated to ", input$tabs, " tab."))
-  }, ignoreInit = TRUE)
+  observeEvent(eventExpr = input$submit, 
+               handlerExpr = {
+                 index <- .tileIndex(activeBtn)
+                 answer <- ""
+                 if (gameSet[index, "format"] == "numeric") {
+                   answer <- gameSet[index, "answer"]
+                 } 
+                 else {
+                   answer <- gameSet[index, gameSet[index, "answer"]]
+                 }
+                 success <- input$ans == answer
+                 
+                 if (is.null(success) || length(success) == 0) {
+                   sendSweetAlert(
+                     session = session,
+                     title = "Error",
+                     text = "Please select an answer before pressing Submit.",
+                     type = "error"
+                   )
+                 } 
+                 else if (success) {
+                   updateButton(
+                     session = session,
+                     inputId = activeBtn,
+                     label = player,
+                     disabled = TRUE
+                   )
+                   scoreMatrix <<- .score(scoreMatrix, activeBtn, 1)
+                   
+                   output$mark <- renderIcon(
+                     icon = "correct",
+                     width = 100
+                   )
+                   output$feedback <- renderUI(
+                     paste("Your answer is correct!")
+                   )
+                 } 
+                 else {
+                   updateButton(
+                     session = session,
+                     inputId = activeBtn,
+                     label = opponent,
+                     disabled = TRUE
+                   )
+                   scoreMatrix <<- .score(scoreMatrix, 
+                                          activeBtn,
+                                          -1)
+                   output$mark <- renderIcon(
+                     icon = "incorrect",
+                     width = 100
+                   )
+                   output$feedback <- renderUI(
+                     paste("Your answer is incorrect. The correct answer is", 
+                           answer, 
+                           ".")
+                   )
+                 }
+                 
+                 # Check for game over states
+                 .gameState <- .gameCheck(scoreMatrix)
+                 completion <- ifelse(test = .gameState == "continue", 
+                                      yes = FALSE, 
+                                      no = TRUE)
+                 interactionType <- ifelse(test = gameSet[index,]$format == "numeric", 
+                                           yes = "numeric", 
+                                           no = "choice")
+                 
+                 .generateAnsweredStatement(
+                   session,
+                   object = activeBtn,
+                   verb = "answered",
+                   description = gameSet[index,]$question,
+                   response = input$ans,
+                   interactionType = interactionType,
+                   success = success,
+                   completion = completion
+                 )
+                 
+                 if (.gameState == "win") {
+                   .generateStatement(session, 
+                                      object = "qqq", 
+                                      verb = "completed", 
+                                      description = "Player has won the game.")
+                   confirmSweetAlert(
+                     session = session,
+                     inputId = "endGame",
+                     title = "You Win!",
+                     text = "You've filled either a row, a column, or a main diagonal. Start over and play a new game.",
+                     btn_labels = "Start Over"
+                   )
+                 } 
+                 else if (.gameState == "lose") {
+                   .generateStatement(session, 
+                                      object = "qqq", 
+                                      verb = "completed", 
+                                      description = "Player has lost the game.")
+                   confirmSweetAlert(
+                     session = session,
+                     inputId = "endGame",
+                     title = "You lose :(",
+                     text = "Take a moment to review the concepts and then try again.",
+                     btn_labels = "Start Over"
+                   )
+                 } 
+                 else if (.gameState == "draw") {
+                   .generateStatement(session, 
+                                      object = "game", 
+                                      verb = "completed", 
+                                      description = "Game has ended in a draw.")
+                   confirmSweetAlert(
+                     session = session,
+                     inputId = "endGame",
+                     title = "Draw!",
+                     text = "Take a moment to review the concepts and then try again.",
+                     btn_labels = "Start Over"
+                   )
+                 }
+                 if (is.null(success) || length(success) == 0) {
+                   updateButton(
+                     session = session,
+                     inputId = "submit",
+                     disabled = FALSE
+                   )
+                 } 
+                 else{
+                   updateButton(
+                     session = session,
+                     inputId = "submit",
+                     disabled = TRUE
+                   )
+                 }
+                 disabled = TRUE
+               })
   
-  observeEvent(input$endGame, {
-    .generateStatement(session, object = "endGame", verb = "interacted", description = paste("Game has been reset."))
-    .gameReset()
-  })
-  
-  observeEvent(input$shinyalert, {
-    if (input$shinyalert == TRUE) {
-      player <<- "X"
-      opponent <<- "O"
-    }
-    if (input$shinyalert == FALSE) {
-      player <<- "O"
-      opponent <<- "X"
-    }
+  observeEvent(eventExpr = input$pages, 
+               handlerExpr = {
+                 if (input$pages == "qqq") {
+                   if (!gameProgress) {
+                     shinyalert(
+                       title = "Player Select",
+                       text = "Select whether you want to play as O or X.",
+                       showConfirmButton = TRUE,
+                       confirmButtonText = "Play as X",
+                       showCancelButton = TRUE,
+                       cancelButtonText = "Play as O"
+                     )
+                     gameProgress <<- TRUE
+                   }
+                 }
+                 .generateStatement(session, 
+                                    verb = "experienced", 
+                                    description = paste0("Navigated to ", 
+                                                         input$pages, 
+                                                         " tab.")
+                                    )
+               }, 
+               ignoreInit = TRUE)
     
-    .generateStatement(session, object = "shinyalert", verb = "interacted", description = paste0("User has selected player: ", player))
+  observeEvent(eventExpr = input$endGame, 
+               handlerExpr = {
+                 .generateStatement(session, 
+                                    object = "endGame", 
+                                    verb = "interacted", 
+                                    description = paste("Game has been reset.")
+                                    )
+                 .gameReset()
+               })
     
-    output$player <- renderUI({
-      return(paste0("You are playing as ", player, "."))
-    })
-  })
+  observeEvent(eventExpr = input$shinyalert, 
+               handlerExpr = {
+                 if (input$shinyalert == TRUE) {
+                   player <<- "X"
+                   opponent <<- "O"
+                 }
+                 if (input$shinyalert == FALSE) {
+                   player <<- "O"
+                   opponent <<- "X"
+                 }
+                 .generateStatement(session, 
+                                    object = "shinyalert", 
+                                    verb = "interacted", 
+                                    description = paste0("User has selected player: ", 
+                                                         player)
+                                    )
+                 
+                 output$player <- renderUI({
+                   return(paste0("You are playing as ", 
+                                 player, 
+                                 "."))
+                 })
+               })
 }
   boastUtils::boastApp(ui = ui, server = server)
   
