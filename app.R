@@ -1050,7 +1050,7 @@ server <- function(input, output,session) {
     
     if (gameSet[index, "extraOutput"] != "") {
       output$extraOutput <- renderText({
-        gameSet[index, "extraOutput"]
+              gameSet[index, "extraOutput"]
       })
     } else {
       output$extraOutput <- NULL
@@ -1284,7 +1284,7 @@ server <- function(input, output,session) {
     ))
   })
   
-  # Program Submit Button
+  # Program Submit Button ----
   observeEvent(input$submit, {
     index <- .tileIndex(activeBtn)
     answer <- ""
@@ -1313,6 +1313,11 @@ server <- function(input, output,session) {
       )
       scoreMatrix <<- .score(scoreMatrix, activeBtn, 1)
       
+      output$mark <- renderIcon(
+        icon = "correct",
+        width = 100
+      )
+      
     } else {
       updateButton(
         session = session,
@@ -1321,6 +1326,14 @@ server <- function(input, output,session) {
         disabled = TRUE
       )
       scoreMatrix <<- .score(scoreMatrix, activeBtn,-1)
+      
+      output$mark <- renderIcon(
+        icon = "incorrect",
+        width = 100
+      )
+      output$feedback <- renderUI(
+        paste("Your answer is incorrect. The correct answer is", answer, ".")
+      )
       
     }
     
@@ -1381,41 +1394,42 @@ server <- function(input, output,session) {
         disabled = TRUE
       )
     }
+    disabled = TRUE
   })
   
-  observeEvent(
-    eventExpr = input$submit,
-    handlerExpr = {
-      index <- .tileIndex(activeBtn)
-      answer <- ""
-      
-      if (gameSet[index, "format"] == "numeric") {
-        answer <- gameSet[index, "answer"]
-      } 
-      else {
-        answer <- gameSet[index, gameSet[index, "answer"]]
-      }
-      
-      success <- input$ans == answer
-      if (success) {
-        output$mark <- renderIcon(
-          icon = "correct",
-          width = 100
-        )
-      }
-      else {
-        output$mark <- renderIcon(
-          icon = "incorrect",
-          width = 100
-        )
-        output$feedback <- renderUI(
-          paste("Your answer is incorrect. The correct answer is", answer, ".")
-        )
-      }
-    },
-    ignoreNULL = TRUE
-  )
-  
+  # observeEvent(
+  #   eventExpr = input$submit,
+  #   handlerExpr = {
+  #     index <- .tileIndex(activeBtn)
+  #     answer <- ""
+  #     
+  #     if (gameSet[index, "format"] == "numeric") {
+  #       answer <- gameSet[index, "answer"]
+  #     } 
+  #     else {
+  #       answer <- gameSet[index, gameSet[index, "answer"]]
+  #     }
+  #     
+  #     success <- input$ans == answer
+  #     if (success) {
+  #       output$mark <- renderIcon(
+  #         icon = "correct",
+  #         width = 100
+  #       )
+  #     }
+  #     else {
+  #       output$mark <- renderIcon(
+  #         icon = "incorrect",
+  #         width = 100
+  #       )
+  #       output$feedback <- renderUI(
+  #         paste("Your answer is incorrect. The correct answer is", answer, ".")
+  #       )
+  #     }
+  #   }
+  # )
+  # 
+
   observeEvent(input$tabs, {
     if (input$tabs == "qqq") {
       if (!gameProgress) {
