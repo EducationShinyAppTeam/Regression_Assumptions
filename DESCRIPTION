@@ -5,7 +5,7 @@ Lifecycle: experimental
 Authors@R: c(
     person(given = "TJ", family = "McIntyre", role = c("aut", "cre")),
     person(given = "Ryan", family = "Voyack", role = c("aut")),
-    person(given = "Lydia", family = "Bednarczyk", email = "ljb5670@psu.edu", role = c("ctb"))
+    person(given = "Lydia", family = "Bednarczyk", email = "ljb5670@psu.edu", role = c("aut"))
   )
 Chapter: Chapter 6
 Description: This app will allow you to explore how to read diagnostic plots
