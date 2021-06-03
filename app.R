@@ -4,7 +4,8 @@ library(shinyBS)
 library(raster)
 library(shinyWidgets)
 library(boastUtils)
-
+library(shinyjs)
+library(shinyalert)
 
 #This app will be used to explore and play around with the assumptions and diagnostics of regression
 GRID_SIZE <- 3
