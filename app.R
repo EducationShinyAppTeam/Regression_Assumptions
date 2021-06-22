@@ -39,7 +39,7 @@ ui <- list(
     
     #adding pages to sidebar ----
     dashboardSidebar(
-      width = 220,
+      width = 250,
       sidebarMenu(id = "pages",
                   menuItem(text = "Overview",
                            tabName = "instruction", 
@@ -73,31 +73,31 @@ ui <- list(
         tabItem(tabName = "instruction",
                 h1("Regression Assumptions"),
                 h2("About:"),
-                h4("This app will allow you to explore how to read diagnostic plots
+                p("This app will allow you to explore how to read diagnostic plots
                 while interacting with different transformations to help you better 
                 understand the assumptions of regression."),
                 br(),                     
                 h2("Instructions"),
-                h4(
+                p(
                   tags$li("Each 'Mystery Model' on the exploration page is generated
                         with variables or their transformations being the response (Y) or 
                         the predictor variables (X1, X2).")
                 ),
-                h4(
+                p(
                   tags$li("Watch how diagnostic plots change when you adjust the 
                         predictors and response variables using different transformations. 
                         Note that transforming the y variable will effect certain 
                         plots more, and transforming the x variable will effect 
                         other plots more.")
                 ),
-                h4(
+                p(
                   tags$li('You also have the option to change the variances of each
                         term, and the sample size.')
                 ),
-                h4(
+                p(
                   tags$li('The instructions in the activity provide some ideas for exploration.')
                 ),
-                h4(
+                p(
                   tags$li("In the game, the object is to win at tic-tac-toe where 
                         you are playing X's.  Select a square, then answer the question.
                         If you get the question correct, an X goes in the square. 
@@ -108,27 +108,27 @@ ui <- list(
                              label = "Prerequisites",
                              icon = icon("book"), 
                              style = "danger", 
-                             size = "large", 
-                             class = "circle grow")
+                             size = "large")
                 ),
                 br(),
                 h2("Acknowledgements:"),
-                h4("This app was developed and coded by TJ McIntyre, with the help of Ryan Voyack and was updated by Lydia Bednarczyk.")
+                p("This app was developed and coded by TJ McIntyre, with the help 
+                  of Ryan Voyack and was updated by Lydia Bednarczyk.")
         ),
 #Adding pre-requisites page ----
         tabItem(tabName = "prereq",
                 h2("Prerequisites"),
-                h4("In order to get the most out of this app, it is important to
+                p("In order to get the most out of this app, it is important to
                    understand background information about assumptions and diagnostic
                    plots in regression."),
-                h4(
+                p(
                   tags$li("Transforming the x values is appropriate when non-linearity 
                         is the only problem (i.e., the independence, normality, 
                         and equal variance conditions are met). Transforming the 
                         y values should be considered when non-normality and/or 
                         unequal variances are the problems with the model.")
                 ),
-                h4(
+                p(
                   tags$li("The Fitted vs Residuals plot can be used to check the 
                         assumption of linearity (any location on the x axis, the 
                         average residual should be close to 0) and it can also be 
@@ -136,7 +136,7 @@ ui <- list(
                         location on the x axis, the variability of the residual 
                         should be similar).")
                 ),
-                h4(
+                p(
                   tags$li("The Normal Q-Q plot can be used to check the assumption 
                         of normal errors: i.e. the majority of the points should 
                         be a straight line. Skewness can also be seen by this plot. 
@@ -144,12 +144,12 @@ ui <- list(
                           a(href='https://psu-eberly.shinyapps.io/QQ_Plot/', 'Q-Q plot'),
                           " app for further exploration.")
                 ),
-                h4(
+                p(
                   tags$li("The Scale-Location plot can be used to check the assumption 
                         of equal variances, at any location of the x axis, the upper 
                         bound of the residuals should be similar.")
                 ),
-                h4(
+                p(
                   tags$li("The Cook's Distance plot shows the values of leverage, 
                         standardized residuals, and Cook's Distance of each data point
                         which can be used to determine high leverage points, outliers 
@@ -162,111 +162,165 @@ ui <- list(
                       label = "Explore!",
                       icon = icon("bolt"),
                       style = "danger",
-                      size = "large", 
-                      class = "circle grow")
+                      size = "large")
                 )
         ),
         #Explore page ----
         tabItem(tabName = "explore",
-                fluidRow(
-                  h2("Transformations, Sample size, and Variances vs. Diagnostic plots"),
-                  h4("Each model is generated with Y as the response variable and X1 and X2 being the predictor variables.")
-                ),
+                h2("Transformations, Sample Size, and Variances vs. Diagnostic Plots"),
+                p("Each model is generated with Y as the response variable and X1 
+                  and X2 being the predictor variables."),
                 br(),
                 sidebarLayout(
                   sidebarPanel(
-                    selectInput("model", 
-                                "Select Mystery Model:", 
-                                choices = c(
-                                  'Model 1', 
-                                  'Model 2', 
-                                  'Model 3')
+                    fluidRow(
+                      column(
+                        width = 9,
+                        selectInput("model", 
+                                    "Select Mystery Model:", 
+                                    choices = c(
+                                      'Model 1', 
+                                      'Model 2', 
+                                      'Model 3')
+                        )
+                      )
                     ),
-                    sliderInput("n", 
-                                "Sample Size:", 
-                                min = 10,
-                                max = 510, 
-                                value = 50, 
-                                step = 5),
-                    bsPopover(id = "n",
-                              title = "Sample Size Input", 
-                              content = "Number of observations pulled from the normal distribution",
-                              placement = "top", 
-                              trigger = "click", 
-                              options = NULL
+                    fluidRow(
+                      column(
+                        width = 9,
+                        sliderInput("n", 
+                                    "Sample Size:", 
+                                    min = 10,
+                                    max = 510, 
+                                    value = 50, 
+                                    step = 5)
+                      ),
+                      column(
+                        width = 1,
+                        bsButton(inputId = "hint1",
+                                 label = "Hint",
+                                 icon = icon("question"),
+                                 size = "large")
+                      )
+                      ),
+                    fluidRow(
+                      column(
+                        width = 9,
+                        selectInput("x", 
+                                    "Transformation on X1:", 
+                                    choices = c(
+                                      'Log(x1)', 
+                                      'Square root of x1',
+                                      "None"), 
+                                    selected = "None"
+                        )
+                      ),
+                      column(
+                        width = 1,
+                        bsButton(inputId = "hint2",
+                                 label = "Hint",
+                                 icon = icon("question"),
+                                 size = "large")
+                      )
                     ),
-                    selectInput("x", 
-                                "Transformation on X1:", 
-                                choices = c(
-                                  'logx', 
-                                  'sqrtx',
-                                  "none"), 
-                                selected = "nonex"
+                    fluidRow(
+                      column(
+                        width = 9,
+                        sliderInput("x1v", 
+                                    "x1 Variance:", 
+                                    min = 0, 
+                                    max = 20, 
+                                    value = 2, 
+                                    step = 1
+                        )
+                        ),
+                      column(
+                        width = 1,
+                        bsButton(inputId = "hint3",
+                                 label = "Hint",
+                                 icon = icon("question"),
+                                 size = "large")
+                      )
                     ),
-                    sliderInput("x1v", 
-                                "x1 Variance:", 
-                                min = 0, 
-                                max = 20, 
-                                value = 2, 
-                                step = 1
+                  fluidRow(
+                    column(
+                      width = 9,
+                      selectInput("x2", 
+                                  "Transformation on X2:", 
+                                  choices = c(
+                                    'Log(x2)', 
+                                    'Square root of x2', 
+                                    "None"),
+                                  selected = "None"
+                      )
                     ),
-                    bsPopover(id = "x1v",
-                              title = "Variance for X1", 
-                              content = "Variance for X1 normal distribution",
-                              placement = "top", 
-                              trigger = "click", 
-                              options = NULL
+                    column(
+                      width = 1,
+                      bsButton(inputId = "hint4",
+                               label = "Hint",
+                               icon = icon("question"),
+                               size = "large")
+                    )
+                  ),
+                    
+                    fluidRow(
+                      column(
+                        width = 9,
+                        sliderInput("x2v", 
+                                    "x2 Variance:", 
+                                    min = 0, 
+                                    max = 20, 
+                                    value = 2, 
+                                    step = 1
+                        )
+                      ),
+                      column(
+                        width = 1,
+                        bsButton(inputId = "hint5",
+                                 label = "Hint",
+                                 icon = icon("question"),
+                                 size = "large")
+                      )
                     ),
-                    selectInput("x2", 
-                                "Transformation on X2:", 
-                                choices = c(
-                                  'logx2', 
-                                  'sqrtx2', 
-                                  "none"),
-                                selected = "nonex2"
+                    fluidRow(
+                      column(
+                        width = 9,
+                        selectInput('y', 
+                                    'Transformation on Y:', 
+                                    choices = c(
+                                      'Log(y)',
+                                      'Square root of y',
+                                      "None"
+                                    ), 
+                                    selected = "Log(y)"
+                        )
+                      ),
+                      column(
+                        width = 1,
+                        bsButton(inputId = "hint6",
+                                 label = "Hint",
+                                 icon = icon("question"),
+                                 size = "large")
+                      )
                     ),
-                    sliderInput("x2v", 
-                                "x2 Variance:", 
-                                min = 0, 
-                                max = 20, 
-                                value = 2, 
-                                step = 1
-                    ),
-                    bsPopover(id = "x2v",
-                              title = "Variance for X2", 
-                              content = "Variance for X2 normal distribution",
-                              placement = "top", 
-                              trigger = "click", 
-                              options = NULL),
-                    selectInput('y', 
-                                'Transformation on Y:', 
-                                choices = c(
-                                  'logy',
-                                  'sqrty',
-                                  "none"
-                                ), 
-                                selected = "logy"
-                    ),
-                    sliderInput("yv", 
-                                "Y Variance:", 
-                                min = 0, 
-                                max = 20, 
-                                value = 2, 
-                                step = 1
-                    ),
-                    bsPopover(id = "yv",
-                              title = "Variance for Y", 
-                              content = "Variance for Y normal distribution",
-                              placement = "top", 
-                              trigger = "click", 
-                              options = NULL
-                    ),
-                    bsPopover(id = "y",
-                              title = "Transformation Hint", 
-                              content = "Transform Y when non-normality or unequal variances are in question",
-                              placement = "top", 
-                              trigger = "click", 
-                              options = NULL
+                    fluidRow(
+                      column(
+                        width = 9,
+                        sliderInput("yv", 
+                                    "Y Variance:", 
+                                    min = 0, 
+                                    max = 20, 
+                                    value = 2, 
+                                    step = 1
+                        )
+                      ),
+                      column(
+                        width = 1,
+                        bsButton(inputId = "hint7",
+                                 label = "Hint",
+                                 icon = icon("question"),
+                                 size = "large")
+                      )
                     ),
                     bsButton(inputId = "submitD", 
                              label = "Results for a New Sample", 
@@ -280,8 +334,8 @@ ui <- list(
                              label = "Play!",
                              icon = icon("bolt"),
                              style = "danger",
-                             size = "large",
-                             class = "circle grow")
+                             size = "large")
+                  
                   ),
                   mainPanel(
                     plotOutput("plots"),
@@ -314,7 +368,7 @@ ui <- list(
                              disabled = FALSE)
                   )
                 )
-        ),
+                ),
         # Game page ----
         tabItem(tabName = "qqq",
                 withMathJax(),
@@ -412,8 +466,8 @@ ui <- list(
         )
       )
     )
-  )
-)
+  ))
+
 
 
 #bankc for challenge bank
@@ -803,64 +857,64 @@ server <- function(input, output, session) {
     
     output$challenges <- renderUI ({
       if (index$index == 1) {
-        h4(bankc[1,2])
+        p(bankc[1,2])
       } 
       else if (index$index == 2) {
-        h4(bankc[2,2])
+        p(bankc[2,2])
       }
       else if (index$index == 3) {
-        h4(bankc[3,2])
+        p(bankc[3,2])
       }
       else if (index$index == 4) {
-        h4(bankc[4,2])
+        p(bankc[4,2])
       }
       else if (index$index == 5) {
-        h4(bankc[5,2])
+        p(bankc[5,2])
       }
       else if (index$index == 6) {
-        h4(bankc[6,2])
+        p(bankc[6,2])
       }
       else if (index$index == 7) {
-        h4(bankc[7,2])
+        p(bankc[7,2])
       }
       else if (index$index == 8) {
-        h4(bankc[8,2])
+        p(bankc[8,2])
       }
       else if (index$index == 9) {
-        h4(bankc[9,2])
+        p(bankc[9,2])
       }
       else if (index$index == 10) {
-        h4(bankc[10,2])
+        p(bankc[10,2])
       }
       else if (index$index == 11) {
-        h4(bankc[11,2])
+        p(bankc[11,2])
       }
       else if (index$index == 12) {
-        h4(bankc[12,2])
+        p(bankc[12,2])
       }
       else if (index$index == 13) {
-        h4(bankc[13,2])
+        p(bankc[13,2])
       }
       else if (index$index == 14) {
-        h4(bankc[14,2]) 
+        p(bankc[14,2]) 
       }
       else if (index$index == 15) {
-        h4(bankc[15,2])
+        p(bankc[15,2])
       }
       else if (index$index == 16) {
-        h4(bankc[16,2])
+        p(bankc[16,2])
       }
       else if (index$index == 17) {
-        h4(bankc[17,2])
+        p(bankc[17,2])
       }
       else if (index$index == 18) {
-        h4(bankc[18,2])
+        p(bankc[18,2])
       }
       else if (index$index == 19) {
-        h4(bankc[19,2])
+        p(bankc[19,2])
       }
       else if (index$index == 20) {
-        h4(bankc[20,2])
+        p(bankc[20,2])
       }
     }
     )
@@ -888,6 +942,95 @@ server <- function(input, output, session) {
         renderText("Please hit the view feedback button for feedback")
     }
     ) 
+  observeEvent(
+    eventExpr = input$hint1,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Hint:",
+        type = NULL,
+        closeOnClickOutside = TRUE,
+        p("Number of observations pulled from the normal distribution")
+      )
+    }
+  )
+  observeEvent(
+    eventExpr = input$hint2,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Hint:",
+        type = NULL,
+        closeOnClickOutside = TRUE,
+        p("Transform x1, a predictor variable, when non-linearity is the only 
+          condition  in question")
+      )
+    }
+  )
+  observeEvent(
+    eventExpr = input$hint3,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Hint:",
+        type = NULL,
+        closeOnClickOutside = TRUE,
+        p("Variance for the normal distribution of x1.")
+      )
+    }
+  )
+  observeEvent(
+    eventExpr = input$hint4,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Hint:",
+        type = NULL,
+        closeOnClickOutside = TRUE,
+        p("Transform x2, a predictor variable, when non-linearity is the only 
+          condition  in question")
+      )
+    }
+  )
+  observeEvent(
+    eventExpr = input$hint5,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Hint:",
+        type = NULL,
+        closeOnClickOutside = TRUE,
+        p("Variance for the normal distribution of x2.")
+      )
+    }
+  )
+  observeEvent(
+    eventExpr = input$hint6,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Hint:",
+        type = NULL,
+        closeOnClickOutside = TRUE,
+        p("Transform Y, a response variable, when non-normality and/or unequal 
+          variances are in question")
+      )
+    }
+  )
+  observeEvent(
+    eventExpr = input$hint7,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Hint:",
+        type = NULL,
+        closeOnClickOutside = TRUE,
+        p("Variance for the normal distribution of Y.")
+      )
+    }
+  )
+  
+  
 
   #output of the answers ----
   observeEvent(
@@ -895,64 +1038,64 @@ server <- function(input, output, session) {
     handlerExpr = {
       output$answers <- renderUI ({
         if (index$index == 1){
-          h4(bankc[1,3])
+          p(bankc[1,3])
         } 
         else if (index$index == 2){
-          h4(bankc[2,3])
+          p(bankc[2,3])
         }
         else if (index$index == 3){
-          h4(bankc[3,3])
+          p(bankc[3,3])
         }
         else if (index$index == 4){
-          h4(bankc[4,3])
+          p(bankc[4,3])
         }
         else if (index$index == 5){
-          h4(bankc[5,3])
+          p(bankc[5,3])
         }
         else if (index$index == 6){
-          h4(bankc[6,3])
+          p(bankc[6,3])
         }
         else if (index$index == 7){
-          h4(bankc[7,3])
+          p(bankc[7,3])
         }
         else if (index$index == 8){
-          h4(bankc[8,3])
+          p(bankc[8,3])
         }
         else if (index$index == 9){
-          h4(bankc[9,3])
+          p(bankc[9,3])
         }
         else if (index$index == 10){
-          h4(bankc[10,3])
+          p(bankc[10,3])
         }
         else if (index$index == 11){
-          h4(bankc[11,3])
+          p(bankc[11,3])
         }
         else if (index$index == 12){
-          h4(bankc[12,3])
+          p(bankc[12,3])
         }
         else if (index$index == 13){
-          h4(bankc[13,3])
+          p(bankc[13,3])
         }
         else if (index$index == 14){
-          h4(bankc[14,3])
+          p(bankc[14,3])
         }
         else if (index$index == 15){
-          h4(bankc[15,3])
+          p(bankc[15,3])
         }
         else if (index$index == 16){
-          h4(bankc[16,3])
+          p(bankc[16,3])
         }
         else if (index$index == 17){
-          h4(bankc[17,3])
+          p(bankc[17,3])
         }
         else if (index$index == 18){
-          h4(bankc[18,3])
+          p(bankc[18,3])
         }
         else if (index$index == 19){
-          h4(bankc[19,3])
+          p(bankc[19,3])
         }
         else if (index$index == 20){
-          h4(bankc[20,3])
+          p(bankc[20,3])
         }
       }
       )
