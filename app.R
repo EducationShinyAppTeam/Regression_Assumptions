@@ -72,7 +72,7 @@ ui <- list(
       tabItems(
         tabItem(tabName = "instruction",
                 h1("Regression Assumptions"),
-                h2("About:"),
+                h2("About"),
                 p("This app will allow you to explore how to read diagnostic plots
                 while interacting with different transformations to help you better 
                 understand the assumptions of regression."),
@@ -111,7 +111,7 @@ ui <- list(
                              size = "large")
                 ),
                 br(),
-                h2("Acknowledgements:"),
+                h2("Acknowledgements"),
                 p("This app was developed and coded by TJ McIntyre, with the help 
                   of Ryan Voyack and was updated by Lydia Bednarczyk.")
         ),
@@ -194,13 +194,6 @@ ui <- list(
                                     max = 510, 
                                     value = 50, 
                                     step = 5)
-                      ),
-                      column(
-                        width = 1,
-                        bsButton(inputId = "hint1",
-                                 label = "Hint",
-                                 icon = icon("question"),
-                                 size = "large")
                       )
                       ),
                     fluidRow(
@@ -233,14 +226,7 @@ ui <- list(
                                     value = 2, 
                                     step = 1
                         )
-                        ),
-                      column(
-                        width = 1,
-                        bsButton(inputId = "hint3",
-                                 label = "Hint",
-                                 icon = icon("question"),
-                                 size = "large")
-                      )
+                        )
                     ),
                   fluidRow(
                     column(
@@ -273,13 +259,6 @@ ui <- list(
                                     value = 2, 
                                     step = 1
                         )
-                      ),
-                      column(
-                        width = 1,
-                        bsButton(inputId = "hint5",
-                                 label = "Hint",
-                                 icon = icon("question"),
-                                 size = "large")
                       )
                     ),
                     fluidRow(
@@ -313,13 +292,6 @@ ui <- list(
                                     value = 2, 
                                     step = 1
                         )
-                      ),
-                      column(
-                        width = 1,
-                        bsButton(inputId = "hint7",
-                                 label = "Hint",
-                                 icon = icon("question"),
-                                 size = "large")
                       )
                     ),
                     bsButton(inputId = "submitD", 
@@ -338,7 +310,9 @@ ui <- list(
                   
                   ),
                   mainPanel(
-                    plotOutput("plots"),
+                    plotOutput("plots",
+                               width = "100%",
+                               height = "600px"),
                     br(),
                     fluidRow(
                       h3("Adjust the inputs to complete the activity:")
@@ -425,6 +399,18 @@ ui <- list(
           p(
             class = "hangingindent",
             "https://educationshinyappteam.github.io/Style_Guide/index.html#organization"
+          ),
+          p(
+            class = "hangingindent",
+            "Attali, Dean. (2020). shinyjs: Easily Improve the User Experience of 
+            Your Shiny Apps in Seconds. (v2.0.0) [R Package]. Available from 
+            https://CRAN.R-project.org/package=shinyjs"
+          ),
+          p(
+            class = "hangingindent",
+            "Attali, Dean and Edwards, Tristan. (2020). shinyalert: Easily Create 
+            Pretty Popup Messages (Modals) in 'Shiny'. (v2.0.0) [R Package]. Available
+            from https://CRAN.R-project.org/package=shinyalert"
           ),
           p(
             class = "hangingindent",
@@ -1459,6 +1445,8 @@ server <- function(input, output, session) {
                                                                activeQuestion, 
                                                                ".")
                                           )
+                       output$mark <- renderUI(NULL)
+                       output$feedback <- renderUI(NULL)
                        }
                      )
         
@@ -1509,7 +1497,7 @@ server <- function(input, output, session) {
                    
                    output$mark <- renderIcon(
                      icon = "correct",
-                     width = 100
+                     width = 50
                    )
                    output$feedback <- renderUI(
                      paste("Your answer is correct!")
@@ -1527,7 +1515,7 @@ server <- function(input, output, session) {
                                           -1)
                    output$mark <- renderIcon(
                      icon = "incorrect",
-                     width = 100
+                     width = 50
                    )
                    output$feedback <- renderUI(
                      paste("Your answer is incorrect. The correct answer is", 
@@ -1568,6 +1556,8 @@ server <- function(input, output, session) {
                      text = "You've filled either a row, a column, or a main diagonal. Start over and play a new game.",
                      btn_labels = "Start Over"
                    )
+                   output$mark <- renderUI(NULL)
+                   output$feedback <- renderUI(NULL)
                  } 
                  else if (.gameState == "lose") {
                    .generateStatement(session, 
@@ -1581,6 +1571,8 @@ server <- function(input, output, session) {
                      text = "Take a moment to review the concepts and then try again.",
                      btn_labels = "Start Over"
                    )
+                   output$mark <- renderUI(NULL)
+                   output$feedback <- renderUI(NULL)
                  } 
                  else if (.gameState == "draw") {
                    .generateStatement(session, 
@@ -1594,6 +1586,8 @@ server <- function(input, output, session) {
                      text = "Take a moment to review the concepts and then try again.",
                      btn_labels = "Start Over"
                    )
+                   output$mark <- renderUI(NULL)
+                   output$feedback <- renderUI(NULL)
                  }
                  if (is.null(success) || length(success) == 0) {
                    updateButton(
