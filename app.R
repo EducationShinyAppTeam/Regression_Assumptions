@@ -210,7 +210,7 @@ ui <- list(
                       ),
                       column(
                         width = 1,
-                        bsButton(inputId = "hint2",
+                        bsButton(inputId = "hint1",
                                  label = "Hint",
                                  icon = icon("question"),
                                  size = "large")
@@ -242,7 +242,7 @@ ui <- list(
                     ),
                     column(
                       width = 1,
-                      bsButton(inputId = "hint4",
+                      bsButton(inputId = "hint2",
                                label = "Hint",
                                icon = icon("question"),
                                size = "large")
@@ -276,7 +276,7 @@ ui <- list(
                       ),
                       column(
                         width = 1,
-                        bsButton(inputId = "hint6",
+                        bsButton(inputId = "hint3",
                                  label = "Hint",
                                  icon = icon("question"),
                                  size = "large")
@@ -830,7 +830,7 @@ server <- function(input, output, session) {
     #end of observeeventsubmit     
   })
   
-  index <- reactiveValues(index=7)
+  index <- reactiveValues(index = 7)
   
   #Outputting a new activity ----
   
@@ -936,37 +936,13 @@ server <- function(input, output, session) {
         title = "Hint:",
         type = NULL,
         closeOnClickOutside = TRUE,
-        p("Number of observations pulled from the normal distribution")
-      )
-    }
-  )
-  observeEvent(
-    eventExpr = input$hint2,
-    handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        title = "Hint:",
-        type = NULL,
-        closeOnClickOutside = TRUE,
         p("Transform x1, a predictor variable, when non-linearity is the only 
           condition  in question")
       )
     }
   )
   observeEvent(
-    eventExpr = input$hint3,
-    handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        title = "Hint:",
-        type = NULL,
-        closeOnClickOutside = TRUE,
-        p("Variance for the normal distribution of x1.")
-      )
-    }
-  )
-  observeEvent(
-    eventExpr = input$hint4,
+    eventExpr = input$hint2,
     handlerExpr = {
       sendSweetAlert(
         session = session,
@@ -979,19 +955,7 @@ server <- function(input, output, session) {
     }
   )
   observeEvent(
-    eventExpr = input$hint5,
-    handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        title = "Hint:",
-        type = NULL,
-        closeOnClickOutside = TRUE,
-        p("Variance for the normal distribution of x2.")
-      )
-    }
-  )
-  observeEvent(
-    eventExpr = input$hint6,
+    eventExpr = input$hint3,
     handlerExpr = {
       sendSweetAlert(
         session = session,
@@ -1000,18 +964,6 @@ server <- function(input, output, session) {
         closeOnClickOutside = TRUE,
         p("Transform Y, a response variable, when non-normality and/or unequal 
           variances are in question")
-      )
-    }
-  )
-  observeEvent(
-    eventExpr = input$hint7,
-    handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        title = "Hint:",
-        type = NULL,
-        closeOnClickOutside = TRUE,
-        p("Variance for the normal distribution of Y.")
       )
     }
   )
