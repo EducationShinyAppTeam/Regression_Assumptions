@@ -4,63 +4,79 @@ library(shinyBS)
 library(raster)
 library(shinyWidgets)
 library(boastUtils)
-library(shinyjs)
+#library(shinyjs)
 library(shinyalert)
 
-#This app will be used to explore and play around with the assumptions and diagnostics of regression
+#This app will be used to explore and play around with the assumptions and 
+#diagnostics of regression
 GRID_SIZE <- 3
 TILE_COUNT <- GRID_SIZE ^ 2
+questionBank <-
+  read.csv(
+    "questionBank.csv",
+    stringsAsFactors = FALSE,
+    as.is = TRUE)
+bankc <- read.csv("ChallengeOutput.csv")
+bankc = data.frame(
+  lapply(
+    X = bankc,
+    FUN = as.character),
+  stringsAsFactors = FALSE)
 
 ui <- list(
   dashboardPage(
     skin = "black",
-    dashboardHeader(title = "Regression Assumptions and Diagnostics",
-                    titleWidth = 250,
-# Creating header buttons ----
-                    tags$li(
-                      class = "dropdown",
-                      actionLink("info",
-                                 icon("info"))
-                    ),
-                    tags$li(
-                      class = "dropdown",
-                      tags$a(target = "_blank", 
-                             icon("comments"),
-                             href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Assumptions"
-                      )
-                    ),
-                    tags$li(
-                      class = "dropdown",
-                      tags$a(icon("home"),
-                             href = 'https://shinyapps.science.psu.edu/'
-                      )
-                    )
+    dashboardHeader(
+      title = "Regr. Assumptions",
+      titleWidth = 250,
+      # Creating header buttons ----   
+      tags$li(
+        class = "dropdown",
+        actionLink("info",
+                   icon("info"))
+      ),
+      tags$li(
+        class = "dropdown",
+        tags$a(
+          target = "_blank", 
+          icon("comments"),
+          href = "https://pennstate.qualtrics.com/jfe/form/SV_7TLIkFtJEJ7fEPz?appName=Assumptions"
+        )
+      ),
+      tags$li(
+        class = "dropdown",
+        tags$a(
+          icon("home"),
+          href = 'https://shinyapps.science.psu.edu/'
+        )
+      )
     ),
-    
+
     #adding pages to sidebar ----
     dashboardSidebar(
       width = 250,
-      sidebarMenu(id = "pages",
-                  menuItem(text = "Overview",
-                           tabName = "instruction", 
-                           icon = icon("dashboard")
-                  ),
-                  menuItem(text = "Prerequisites", 
-                           tabName = "prereq", 
-                           icon = icon("book")
-                  ),
-                  menuItem(text = "Explore",
-                           tabName = "explore", 
-                           icon = icon("wpexplorer")
-                  ),
-                  menuItem(text = "Game", 
-                           tabName = "qqq", 
-                           icon = icon("gamepad")
-                  ),
-                  menuItem(text = "References",
-                           tabName = "refs",
-                           icon = icon("leanpub")
-                  )
+      sidebarMenu(
+        id = "pages",
+        menuItem(text = "Overview",
+                 tabName = "instruction", 
+                 icon = icon("dashboard")
+        ),
+        menuItem(text = "Prerequisites", 
+                 tabName = "prereq", 
+                 icon = icon("book")
+        ),
+        menuItem(text = "Explore",
+                 tabName = "explore", 
+                 icon = icon("wpexplorer")
+        ),
+        menuItem(text = "Game", 
+                 tabName = "qqq", 
+                 icon = icon("gamepad")
+        ),
+        menuItem(text = "References",
+                 tabName = "refs",
+                 icon = icon("leanpub")
+        )
       ),
       tags$div(
         class = "sidebar-logo", 
@@ -70,326 +86,315 @@ ui <- list(
 # Creating overview page ----
     dashboardBody(
       tabItems(
-        tabItem(tabName = "instruction",
-                h1("Regression Assumptions"),
-                h2("About"),
-                p("This app will allow you to explore how to read diagnostic plots
+        tabItem(
+          tabName = "instruction",
+          h1("Regression Assumptions and Diagnostics"),
+          h2("About"),
+          p("This app will allow you to explore how to read diagnostic plots
                 while interacting with different transformations to help you better 
                 understand the assumptions of regression."),
-                br(),                     
-                h2("Instructions"),
-                p(
-                  tags$li("Each 'Mystery Model' on the exploration page is generated
-                        with variables or their transformations being the response (Y) or 
-                        the predictor variables (X1, X2).")
-                ),
-                p(
-                  tags$li("Watch how diagnostic plots change when you adjust the 
+          br(),                     
+          h2("Instructions"),
+          tags$ul(
+            p(
+              tags$li("Each 'Mystery Model' on the exploration page is generated
+                        with variables or their transformations being the response 
+                        (Y) or the predictor variables (X1, X2).")
+            ),
+            p(
+              tags$li("Watch how diagnostic plots change when you adjust the 
                         predictors and response variables using different transformations. 
                         Note that transforming the y variable will effect certain 
                         plots more, and transforming the x variable will effect 
                         other plots more.")
-                ),
-                p(
-                  tags$li('You also have the option to change the variances of each
+            ),
+            p(
+              tags$li('You also have the option to change the variances of each
                         term, and the sample size.')
-                ),
-                p(
-                  tags$li('The instructions in the activity provide some ideas for exploration.')
-                ),
-                p(
-                  tags$li("In the game, the object is to win at tic-tac-toe where 
-                        you are playing X's.  Select a square, then answer the question.
-                        If you get the question correct, an X goes in the square. 
-                        If you get it wrong, an O goes in the square.")
-                ),
-                div(style = "text-align: center",
-                    bsButton(inputId = "go", 
-                             label = "Prerequisites",
-                             icon = icon("book"), 
-                             style = "danger", 
-                             size = "large")
-                ),
-                br(),
-                h2("Acknowledgements"),
-                p("This app was developed and coded by TJ McIntyre, with the help 
-                  of Ryan Voyack and was updated by Lydia Bednarczyk.")
+            ),
+            p(
+              tags$li('The instructions in the activity provide some ideas 
+                          for exploration.')
+            ),
+            p(
+              tags$li("In the game, the object is to win at tic-tac-toe where 
+                        you are playing X's.  Select a square, then answer the 
+                        question. If you get the question correct, an X goes in 
+                        the square. If you get it wrong, an O goes in the square.")
+            )
+          ),
+          div(
+            style = "text-align: center;",
+            bsButton(
+              inputId = "go",
+              label = "Prerequisites",
+              icon = icon("book"),
+              style = "default",
+              size = "large")
+          ),
+          br(),
+          h2("Acknowledgements"),
+          p("This app was developed and coded by TJ McIntyre, with the help 
+                  of Ryan Voyack and was updated by Lydia Bednarczyk."),
+          div(class = "updated", "Last Update: 7/9/2021 by LSB.")
         ),
 #Adding pre-requisites page ----
-        tabItem(tabName = "prereq",
-                h2("Prerequisites"),
-                p("In order to get the most out of this app, it is important to
+        tabItem(
+          tabName = "prereq",
+          h2("Prerequisites"),
+          p("In order to get the most out of this app, it is important to
                    understand background information about assumptions and diagnostic
                    plots in regression."),
-                p(
-                  tags$li("Transforming the x values is appropriate when non-linearity 
+          tags$ul(
+            p(
+              tags$li("Transforming the x values is appropriate when non-linearity 
                         is the only problem (i.e., the independence, normality, 
                         and equal variance conditions are met). Transforming the 
                         y values should be considered when non-normality and/or 
                         unequal variances are the problems with the model.")
-                ),
-                p(
-                  tags$li("The Fitted vs Residuals plot can be used to check the 
+            ),
+            p(
+              tags$li("The Fitted vs Residuals plot can be used to check the 
                         assumption of linearity (any location on the x axis, the 
                         average residual should be close to 0) and it can also be 
                         used to check the assumption of equal variances (at any 
                         location on the x axis, the variability of the residual 
                         should be similar).")
-                ),
-                p(
-                  tags$li("The Normal Q-Q plot can be used to check the assumption 
+            ),
+            p(
+              tags$li("The Normal Q-Q plot can be used to check the assumption 
                         of normal errors: i.e. the majority of the points should 
                         be a straight line. Skewness can also be seen by this plot. 
                         See the ", 
-                          a(href='https://psu-eberly.shinyapps.io/QQ_Plot/', 'Q-Q plot'),
-                          " app for further exploration.")
-                ),
-                p(
-                  tags$li("The Scale-Location plot can be used to check the assumption 
+                      a(href='https://psu-eberly.shinyapps.io/QQ_Plot/', 'Q-Q 
+                            plot'), " app for further exploration.")
+            ),
+            p(
+              tags$li("The Scale-Location plot can be used to check the assumption 
                         of equal variances, at any location of the x axis, the upper 
                         bound of the residuals should be similar.")
-                ),
-                p(
-                  tags$li("The Cook's Distance plot shows the values of leverage, 
+            ),
+            p(
+              tags$li("The Cook's Distance plot shows the values of leverage, 
                         standardized residuals, and Cook's Distance of each data point
                         which can be used to determine high leverage points, outliers 
                         and influential points.")
-                ),
-                br(),
-                div(style = "text-align: center",
-                    bsButton(
-                      inputId = "start",
-                      label = "Explore!",
-                      icon = icon("bolt"),
-                      style = "danger",
-                      size = "large")
-                )
+            )
+          ),
+          br(),
+          div(
+            style = "text-align: center;",
+            bsButton(
+                inputId = "start",
+                label = "Explore!",
+                icon = icon("bolt"),
+                style = "default",
+                size = "large")
+          )
         ),
         #Explore page ----
-        tabItem(tabName = "explore",
-                h2("Transformations, Sample Size, and Variances vs. Diagnostic Plots"),
-                p("Each model is generated with Y as the response variable and X1 
-                  and X2 being the predictor variables."),
-                br(),
-                sidebarLayout(
-                  sidebarPanel(
-                    fluidRow(
-                      column(
-                        width = 9,
-                        selectInput("model", 
-                                    "Select Mystery Model:", 
-                                    choices = c(
-                                      'Model 1', 
-                                      'Model 2', 
-                                      'Model 3')
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 9,
-                        sliderInput("n", 
-                                    "Sample Size:", 
-                                    min = 10,
-                                    max = 510, 
-                                    value = 50, 
-                                    step = 5)
-                      )
-                      ),
-                    fluidRow(
-                      column(
-                        width = 9,
-                        selectInput("x", 
-                                    "Transformation on X1:", 
-                                    choices = c(
-                                      'Log(x1)', 
-                                      'Square root of x1',
-                                      "None"), 
-                                    selected = "None"
-                        )
-                      ),
-                      column(
-                        width = 1,
-                        bsButton(inputId = "hint1",
-                                 label = "Hint",
-                                 icon = icon("question"),
-                                 size = "large")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 9,
-                        sliderInput("x1v", 
-                                    "x1 Variance:", 
-                                    min = 0, 
-                                    max = 20, 
-                                    value = 2, 
-                                    step = 1
-                        )
-                        )
-                    ),
-                  fluidRow(
-                    column(
-                      width = 9,
-                      selectInput("x2", 
-                                  "Transformation on X2:", 
-                                  choices = c(
-                                    'Log(x2)', 
-                                    'Square root of x2', 
-                                    "None"),
-                                  selected = "None"
-                      )
-                    ),
-                    column(
-                      width = 1,
-                      bsButton(inputId = "hint2",
-                               label = "Hint",
-                               icon = icon("question"),
-                               size = "large")
-                    )
+        tabItem(
+          tabName = "explore",
+          h2("Transformations, Sample Size, and Variances vs. Diagnostic Plots"),
+          p("First, select a mystery model to analyze. Each model is generated 
+          with Y as the response variable and X1 and X2 as the predictor variables. 
+          Then, read the activity question and adjust the sliders accordingly in 
+          order to answer it. Once you have an answer, click the 'View Feedback' 
+          button to see if you are correct. Once you complete an activity, click 
+          the 'New Activity' button to receive a new activity question. You can 
+          also click the 'Results for a New Sample' button to analyze a different 
+          sample of data from the mystery model selected. Once you have completed 
+          your desired amount of activities, click the 'Play' button to move onto 
+          the tic-tac-toe game."),
+          br(),
+              fluidRow(
+                column(
+                  width = 4,
+                  wellPanel(
+                  selectInput(
+                    inputId = "model",
+                    label = "Select Mystery Model:",
+                    choices = c(
+                      'Model 1', 
+                      'Model 2', 
+                      'Model 3')
                   ),
-                    
-                    fluidRow(
-                      column(
-                        width = 9,
-                        sliderInput("x2v", 
-                                    "x2 Variance:", 
-                                    min = 0, 
-                                    max = 20, 
-                                    value = 2, 
-                                    step = 1
-                        )
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 9,
-                        selectInput('y', 
-                                    'Transformation on Y:', 
-                                    choices = c(
-                                      'Log(y)',
-                                      'Square root of y',
-                                      "None"
-                                    ), 
-                                    selected = "Log(y)"
-                        )
-                      ),
-                      column(
-                        width = 1,
-                        bsButton(inputId = "hint3",
-                                 label = "Hint",
-                                 icon = icon("question"),
-                                 size = "large")
-                      )
-                    ),
-                    fluidRow(
-                      column(
-                        width = 9,
-                        sliderInput("yv", 
-                                    "Y Variance:", 
-                                    min = 0, 
-                                    max = 20, 
-                                    value = 2, 
-                                    step = 1
-                        )
-                      )
-                    ),
-                    bsButton(inputId = "submitD", 
-                             label = "Results for a New Sample", 
-                             style = "danger",
-                             icon = icon("retweet"), 
-                             size = "large"
-                    ),
-                    br(),
-                    br(),
-                    bsButton(inputId = "begin",
-                             label = "Play!",
-                             icon = icon("bolt"),
-                             style = "danger",
-                             size = "large")
+                  sliderInput(
+                    inputId = "n",
+                    label = "Sample Size:", 
+                    min = 10,
+                    max = 510, 
+                    value = 50, 
+                    step = 5),
                   
+                  selectInput(
+                    inputId = "x", 
+                    label = "Transformation on X1:", 
+                    choices = c(
+                      'Log(x1)', 
+                      'Square root of x1',
+                      "None"), 
+                    selected = "None"          
                   ),
-                  mainPanel(
-                    plotOutput("plots",
-                               width = "100%",
-                               height = "600px"),
-                    br(),
-                    fluidRow(
-                      h3("Adjust the inputs to complete the activity:")
-                    ),
-                    
-                    wellPanel(
-                      fluidRow(
-                        uiOutput("challenges")
-                      )
-                    ),
-                    fluidRow(
-                      h3("Feedback:")
-                    ),
-                    wellPanel(
-                      fluidRow(
-                        uiOutput("answers")
-                      )
-                    ),
-                    bsButton(inputId = "challenge", 
-                             label = "New Activity", 
-                             style = "danger",
-                             disabled = FALSE
-                    ),
-                    bsButton(inputId = "answer", 
-                             label = "View Feedback", 
-                             style = "danger",
-                             disabled = FALSE)
-                  )
+                  bsButton(
+                    inputId = "hint1",
+                    label = "Hint",
+                    icon = icon("question"),
+                    size = "large"),
+                  sliderInput(
+                    inputId = "x1v", 
+                    label = "x1 Variance:", 
+                    min = 0, 
+                    max = 20, 
+                    value = 2, 
+                    step = 1          
+                  ),
+                  selectInput(
+                    inputId = "x2", 
+                    label = "Transformation on X2:", 
+                    choices = c(
+                      'Log(x2)', 
+                      'Square root of x2', 
+                      "None"),
+                    selected = "None"          
+                  ),
+                  bsButton(
+                    inputId = "hint2",
+                    label = "Hint",
+                    icon = icon("question"),
+                    size = "large"),
+                  sliderInput(
+                    inputId = "x2v", 
+                    label = "x2 Variance:", 
+                    min = 0, 
+                    max = 20, 
+                    value = 2, 
+                    step = 1          
+                  ),
+                  selectInput(
+                    inputId = 'y', 
+                    label = 'Transformation on Y:', 
+                    choices = c(
+                      'Log(y)',
+                      'Square root of y',
+                      "None"
+                    ), 
+                    selected = "Log(y)"          
+                  ),
+                  bsButton(
+                    inputId = "hint3",
+                    label = "Hint",
+                    icon = icon("question"),
+                    size = "large"),
+                  sliderInput(
+                    inputId = "yv", 
+                    label = "Y Variance:", 
+                    min = 0, 
+                    max = 20, 
+                    value = 2, 
+                    step = 1          
+                  ),
+              bsButton(
+                inputId = "submitD", 
+                label = "Results for a New Sample", 
+                style = "default",
+                icon = icon("retweet"), 
+                size = "large"
+              ),
+              br(),
+              br(),
+              bsButton(
+                inputId = "begin",
+                label = "Play!",
+                icon = icon("bolt"),
+                style = "default",
+                size = "large")
                 )
+              ),
+            column(
+              width = 8,
+              offset = 0,
+              h3("Adjust the inputs to complete the activity:"),
+              uiOutput("challenges"),
+              plotOutput(
+                "plots",
+                width = "100%",
+                height = "600px"),
+              br(),
+              h3("Feedback:"),
+              uiOutput("answers"),
+              br(),
+              bsButton(
+                inputId = "answer", 
+                label = "View Feedback", 
+                style = "default",
+                size = "large",
+                disabled = FALSE),
+              bsButton(
+                inputId = "challenge", 
+                label = "New Activity", 
+                style = "default",
+                size = "large",
+                disabled = FALSE
+              )
+              
+            )
+              )
+          
                 ),
         # Game page ----
-        tabItem(tabName = "qqq",
-                withMathJax(),
-                useShinyalert(),
-                h2("Regression Tic-Tac-Toe"),
-                p("To play, click on any one of the buttons that have a question
+        tabItem(
+          tabName = "qqq",
+          withMathJax(),
+          useShinyalert(),
+          h2("Regression Tic-Tac-Toe"),
+          p("To play, click on any one of the buttons that have a question
                   mark. A question will appear to the right with possible answers. 
                   If you answer correctly, you will take the square; if not, the 
                   computer will take the square. Try your best to win the game!"
-                ),
-                h3(uiOutput("player")),
-                fluidRow(
-                  div(
-                    class = "col-sm-12 col-md-4",
-                    h3("Game Board"),
-                    br(),
-                    uiOutput("gameBoard", class = "game-board")
-                  ),
-                  div(
-                    class = "col-sm-12 col-md-8",
-                    h3("Question"),
-                    withMathJax(uiOutput("question")),
-                    uiOutput("extraOutput"),
-                    h3("Answer"),
-                    uiOutput("answer"),
-                    uiOutput("mark"),
-                    uiOutput("feedback"),
-                    bsButton(
-                      inputId = "submit",
-                      label = "Submit",
-                      size = "large",
-                      style = "default",
-                      disabled = TRUE
-                    ),
-                    bsButton(
-                      inputId = "reset",
-                      label = "Reset Game",
-                      color = "primary",
-                      size = "large",
-                      style = "default"
-                    ),
-                    br(),
-                    #These two triggers help with MathJax re-rendering
-                    uiOutput("trigger1"),
-                    uiOutput("trigger2")
-                  )
-                )
+          ),
+          h3(
+            uiOutput("player")
+            ),
+          fluidRow(
+            div(
+              class = "col-sm-12 col-md-4",
+              h3("Game Board"),
+              br(),
+              uiOutput(
+                "gameBoard", 
+                class = "game-board")
+            ),
+            div(
+              class = "col-sm-12 col-md-8",
+              h3("Question"),
+              withMathJax(
+                uiOutput("question")),
+              uiOutput("extraOutput"),
+              h3("Answer"),
+              uiOutput("answer"),
+              uiOutput("mark"),
+              uiOutput("feedback"),
+              bsButton(
+                inputId = "submit",
+                label = "Submit",
+                size = "large",
+                style = "default",
+                disabled = TRUE
+              ),
+              bsButton(
+                inputId = "reset",
+                label = "Reset Game",
+                color = "primary",
+                size = "large",
+                style = "danger"
+              ),
+              br(),
+              #These two triggers help with MathJax re-rendering
+              uiOutput("trigger1"),
+              uiOutput("trigger2")
+            )
+          )
         ),
 # Reference page ----
         tabItem(
@@ -454,38 +459,31 @@ ui <- list(
     )
   ))
 
-
-
-#bankc for challenge bank
-
-bankc <- read.csv("ChallengeOutput.csv")
-bankc = data.frame(
-  lapply(bankc, 
-         as.character), 
-  stringsAsFactors = FALSE)
-
-
 # Server ----
 
 server <- function(input, output, session) {
   
 #Go buttons ---- 
-  observeEvent(input$infoex,{
-    sendSweetAlert(
-      session = session,
-      title = "Instructions:",
-      text = " Move the sliders to see their effect on the diagnostic plots.",
-      type = "info"
-    )
+  observeEvent(
+    eventExpr = input$infoex,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Instructions:",
+        text = " Move the sliders to see their effect on the diagnostic plots.",
+        type = "info"
+      )
   })
-  
-  observeEvent(input$info,{
-    sendSweetAlert(
-      session = session,
-      title = "Instructions:",
-      text = "Click on desired square, answer the question, then hit submit and go to next question.",
-      type = "info"
-    )
+  observeEvent(
+    eventExpr = input$info,
+    handlerExpr = {
+      sendSweetAlert(
+        session = session,
+        title = "Instructions:",
+        text = "Click on desired square, answer the question, then hit submit and 
+      go to next question.",
+        type = "info"
+      )
   })
   observeEvent(
     eventExpr = input$go, 
@@ -495,7 +493,6 @@ server <- function(input, output, session) {
         inputId = "pages",
         selected = "prereq")
     })
-  
   observeEvent(
     eventExpr = input$start,
     handlerExpr = {
@@ -504,7 +501,6 @@ server <- function(input, output, session) {
         inputId = "pages",
         selected = "explore")
     })
-  
   observeEvent(
     eventExpr = input$begin,
     handlerExpr = {
@@ -523,7 +519,6 @@ server <- function(input, output, session) {
         inputId = "answers", 
         disabled = TRUE)
     })
-  
   observeEvent(
     eventExpr = input$challenge, 
     handlerExpr = {
@@ -532,7 +527,6 @@ server <- function(input, output, session) {
         inputId = "answers", 
         disabled = FALSE)
     })
-  
   observeEvent(
     eventExpr = input$answer, 
     handlerExpr = {
@@ -541,7 +535,6 @@ server <- function(input, output, session) {
         inputId = "answers", 
         disabled = TRUE)
     })
-  
   observeEvent(
     eventExpr = input$begin, 
     handlerExpr = {
@@ -826,7 +819,6 @@ server <- function(input, output, session) {
           } 
       })
     
-    
     #end of observeeventsubmit     
   })
   
@@ -835,11 +827,30 @@ server <- function(input, output, session) {
   #Outputting a new activity ----
   
   observeEvent(input$challenge | input$go, {
-    index$index <- sample(x = 1:20,
-                          size = 1, 
-                          replace=FALSE, 
-                          prob=NULL
-                          )
+    if(input$model == "Model 1") {
+      index$index <- sample(
+        x = c(1:7,18:20),
+        size = 1, 
+        replace = FALSE, 
+        prob = NULL
+      )
+    }
+    else if(input$model == "Model 2") {
+      index$index <- sample(
+        x = c(8:13,18:20),
+        size = 1, 
+        replace = FALSE, 
+        prob = NULL
+      )
+    }
+    else {
+      index$index <- sample(
+        x = 14:20,
+        size = 1, 
+        replace = FALSE, 
+        prob = NULL
+      )
+    }
     
     output$challenges <- renderUI ({
       if (index$index == 1) {
@@ -967,8 +978,6 @@ server <- function(input, output, session) {
       )
     }
   )
-  
-  
 
   #output of the answers ----
   observeEvent(
@@ -1088,10 +1097,11 @@ server <- function(input, output, session) {
   
   .btnReset <- function(index) {
     coords <- .tileCoordinates(index = index)
-    id <- paste0("grid-", 
-                 coords$row, 
-                 sep = "-", 
-                 coords$col)
+    id <- paste0(
+      "grid-", 
+      coords$row, 
+      sep = "-", 
+      coords$col)
     updateButton(
       session = session,
       inputId = id,
@@ -1134,10 +1144,11 @@ server <- function(input, output, session) {
       }
     } 
     else {
-      ifelse(test = rows == 1 && rows != 0, 
-             yes = return("win"), 
-             no = return("lose")
-             )
+      ifelse(
+        test = rows == 1 && rows != 0, 
+        yes = return("win"), 
+        no = return("lose")
+      )
      }
   }
   
@@ -1169,17 +1180,19 @@ server <- function(input, output, session) {
     })
     
     #Enable Submit Button
-    updateButton(session = session,
-                 inputId = "submit",
-                 disabled = FALSE)
+    updateButton(
+      session = session,
+      inputId = "submit",
+      disabled = FALSE)
   }
   
   .ansFunc <- function(index, df) {
     if (df[index, "format"] == "numeric") {
       renderUI({
-        numericInput(inputId = "ans",
-                     label = df[index, "label"],
-                     value = 0)
+        numericInput(
+          inputId = "ans",
+          label = df[index, "label"],
+          value = 0)
       })
     } 
     else if (df[index, "format"] == "two") {
@@ -1240,11 +1253,14 @@ server <- function(input, output, session) {
   }
   
   .gameReset <- function() {
-    lapply(1:TILE_COUNT, .btnReset)
+    lapply(
+      X = 1:TILE_COUNT, 
+      FUN = .btnReset)
     qSelected <<-
-      sample(seq_len(nrow(questionBank)), 
-             size = TILE_COUNT, 
-             replace = FALSE)
+      sample(
+        seq_len(nrow(questionBank)), 
+        size = TILE_COUNT, 
+        replace = FALSE)
     gameSet <<- questionBank[qSelected,]
     
     output$question <-
@@ -1267,9 +1283,10 @@ server <- function(input, output, session) {
     gameProgress <- FALSE
     activeBtn <- NA
     
-    updateButton(session = session,
-                 inputId = "submit",
-                 disabled = TRUE)
+    updateButton(
+      session = session,
+      inputId = "submit",
+      disabled = TRUE)
   }
  
   ## BEGIN App Specific xAPI Wrappers ----
@@ -1289,28 +1306,30 @@ server <- function(input, output, session) {
       description = description
     )
     
-    response <- boastUtils::storeStatement(session = session, 
-                                           statement = stmt)
+    response <- boastUtils::storeStatement(
+      session = session, 
+      statement = stmt)
     return(response)
   }
   
-  .generateAnsweredStatement <- function(session, 
-                                         verb = NA, 
-                                         object = NA, 
-                                         description = NA, 
-                                         interactionType = NA, 
-                                         response = NA, 
-                                         success = NA, 
-                                         completion = FALSE) {
-    
+  .generateAnsweredStatement <- function(
+    session, 
+    verb = NA, 
+    object = NA, 
+    description = NA, 
+    interactionType = NA, 
+    response = NA, 
+    success = NA, 
+    completion = FALSE) {
     stmt <- boastUtils::generateStatement(
       session,
       verb = verb,
       object = object,
-      description = paste0("Question ", 
-                           activeQuestion, 
-                           sep = ": ", 
-                           description),
+      description = paste0(
+        "Question ", 
+        activeQuestion, 
+        sep = ": ", 
+        description),
       interactionType = interactionType,
       success = success,
       response = response,
@@ -1322,8 +1341,9 @@ server <- function(input, output, session) {
       )
     )
     
-    response <- boastUtils::storeStatement(session = session, 
-                                           statement = stmt)
+    response <- boastUtils::storeStatement(
+      session = session, 
+      statement = stmt)
     return(response)
   }
   ## END App Specific xAPI Wrappers ----
@@ -1332,289 +1352,303 @@ server <- function(input, output, session) {
   observeEvent(
     eventExpr = input$go1, 
     handlerExpr = {
-    updateTabItems(session = session, 
-                   inputId = "pages", 
-                   selected = "qqq")
+    updateTabItems(
+      session = session, 
+      inputId = "pages", 
+      selected = "qqq")
   })
   
   # Read in data and generate the first subset ----
-  questionBank <-
-    read.csv("bank.csv",
-             stringsAsFactors = FALSE,
-             as.is = TRUE)
   qSelected <-
-    sample(x = seq_len(nrow(questionBank)), 
-           size = TILE_COUNT, 
-           replace = FALSE)
+    sample(
+      x = seq_len(nrow(questionBank)), 
+      size = TILE_COUNT, 
+      replace = FALSE)
   gameSet <- questionBank[qSelected,]
   
   # Program the Reset Button
-  observeEvent(eventExpr = input$reset, 
-               handlerExpr = {
-    .generateStatement(session, 
-                       object = "reset", 
-                       verb = "interacted", 
-                       description = "Game board has been reset.")
-    .gameReset()
+  observeEvent(
+    eventExpr = input$reset, 
+    handlerExpr = {
+      .generateStatement(session, 
+                         object = "reset", 
+                         verb = "interacted", 
+                         description = "Game board has been reset.")
+      .gameReset() 
   })
   
   # Render Game Board / Attach Observers
   output$gameBoard <- renderUI({
     board <- list()
     index <- 1
-    sapply(X = 1:GRID_SIZE, 
-           FUN = function(row) {
-      sapply(X = 1:GRID_SIZE, 
-             FUN = function(column) {
-        id <- paste0("grid-", 
-                     row, 
-                     sep = "-", 
-                     column)
-        board[[index]] <<- tags$li(
-          actionButton(
-            inputId = paste0("grid-", 
-                             row, 
-                             sep = "-", 
-                             column),
-            label = "?",
-            color = "primary",
-            style = "bordered",
-            class = "grid-fill"
-          ),
-          class = "grid-tile"
-        )
-        
-        observeEvent(eventExpr = session$input[[id]], 
-                     handlerExpr = {
-                       activeBtn <<- id
-                       .boardBtn(id)
-                       .generateStatement(session, 
-                                          object = activeBtn, 
-                                          verb = "interacted", 
-                                          description = paste0("Tile ", 
-                                                               activeBtn, 
-                                                               " selected. Rendering question: ", 
-                                                               activeQuestion, 
-                                                               ".")
-                                          )
-                       output$mark <- renderUI(NULL)
-                       output$feedback <- renderUI(NULL)
-                       }
-                     )
-        
+    sapply(
+      X = 1:GRID_SIZE, 
+      FUN = function(row) {
+        sapply(X = 1:GRID_SIZE, 
+               FUN = function(column) {
+                 id <- paste0("grid-", 
+                              row, 
+                              sep = "-", 
+                              column)
+                 board[[index]] <<- tags$li(
+                   actionButton(
+                     inputId = paste0("grid-", 
+                                      row, 
+                                      sep = "-", 
+                                      column),
+                     label = "?",
+                     color = "primary",
+                     style = "bordered",
+                     class = "grid-fill"
+                   ),
+                   class = "grid-tile"
+                 )
+       observeEvent(
+         eventExpr = session$input[[id]], 
+         handlerExpr = {
+           activeBtn <<- id
+           .boardBtn(id)
+           .generateStatement(session, 
+                              object = activeBtn, 
+                              verb = "interacted", 
+                              description = paste0("Tile ", 
+                                                   activeBtn, 
+                                                   " selected. Rendering 
+                                                               question: ", 
+                                                   activeQuestion, 
+                                                   ".")
+           )
+           output$mark <- renderUI(NULL)
+           output$feedback <- renderUI(NULL)
+         }
+         )
         index <<- index + 1
       })
     })
     
-    tags$ol(board, 
-            class = paste(
-             "grid-board",
-             "grid-fill",
-             paste0("grid-", 
-                    GRID_SIZE, 
-                    "x", 
-                    GRID_SIZE)
-             ))
+    tags$ol(
+      board,
+      class = paste(
+        "grid-board",
+        "grid-fill",
+        paste0("grid-", 
+               GRID_SIZE, 
+               "x", 
+               GRID_SIZE)
+      )) 
    })
   
   # Program Submit Button ----
-  observeEvent(eventExpr = input$submit, 
-               handlerExpr = {
-                 index <- .tileIndex(activeBtn)
-                 answer <- ""
-                 if (gameSet[index, "format"] == "numeric") {
-                   answer <- gameSet[index, "answer"]
-                 } 
-                 else {
-                   answer <- gameSet[index, gameSet[index, "answer"]]
-                 }
-                 success <- input$ans == answer
+  observeEvent(
+    eventExpr = input$submit, 
+    handlerExpr = {
+      index <- .tileIndex(activeBtn)
+      answer <- ""
+      if (gameSet[index, "format"] == "numeric") {
+        answer <- gameSet[index, "answer"]
+      } 
+      else {
+        answer <- gameSet[index, gameSet[index, "answer"]]
+      }
+      success <- input$ans == answer
+      
+      if (is.null(success) || length(success) == 0) {
+        sendSweetAlert(
+          session = session,
+          title = "Error",
+          text = "Please select an answer before pressing Submit.",
+          type = "error"
+        )
+      } 
+      else if (success) {
+        updateButton(
+          session = session,
+          inputId = activeBtn,
+          label = player,
+          disabled = TRUE
+        )
+        scoreMatrix <<- .score(scoreMatrix, activeBtn, 1)
+        
+        output$mark <- renderIcon(
+          icon = "correct",
+          width = 50
+        )
+        output$feedback <- renderUI(
+          paste("Your answer is correct!")
+        )
+      } 
+      else {
+        updateButton(
+          session = session,
+          inputId = activeBtn,
+          label = opponent,
+          disabled = TRUE
+        )
+        scoreMatrix <<- .score(scoreMatrix, 
+                               activeBtn,
+                               -1)
+        output$mark <- renderIcon(
+          icon = "incorrect",
+          width = 50
+        )
+        output$feedback <- renderUI(
+          paste("Your answer is incorrect. The correct answer is", 
+                answer, 
+                ".")
+        )
+      }
+      
+      # Check for game over states
+      .gameState <- .gameCheck(scoreMatrix)
+      completion <- ifelse(
+        test = .gameState == "continue", 
+        yes = FALSE, 
+        no = TRUE)
+      interactionType <- ifelse(
+        test = gameSet[index,]$format == "numeric", 
+        yes = "numeric", 
+        no = "choice")
+      
+      .generateAnsweredStatement(
+        session,
+        object = activeBtn,
+        verb = "answered",
+        description = gameSet[index,]$question,
+        response = input$ans,
+        interactionType = interactionType,
+        success = success,
+        completion = completion
+      )
+      
+      if (.gameState == "win") {
+        .generateStatement(
+          session, 
+          object = "qqq", 
+          verb = "completed", 
+          description = "Player has won the game.")
+        confirmSweetAlert(
+          session = session,
+          inputId = "endGame",
+          title = "You Win!",
+          text = "You've filled either a row, a column, or a main 
+                     diagonal. Start over and play a new game.",
+          btn_labels = "Start Over"
+        )
+        output$mark <- renderUI(NULL)
+        output$feedback <- renderUI(NULL)
+      } 
+      else if (.gameState == "lose") {
+        .generateStatement(
+          session, 
+          object = "qqq", 
+          verb = "completed", 
+          description = "Player has lost the game.")                 
+        confirmSweetAlert(
+          session = session,
+          inputId = "endGame",
+          title = "You lose :(",
+          text = "Take a moment to review the concepts and then try 
+                     again.",
+          btn_labels = "Start Over"
+        )
+        output$mark <- renderUI(NULL)
+        output$feedback <- renderUI(NULL)
+      } 
+      else if (.gameState == "draw") {
+        .generateStatement(
+          session, 
+          object = "game", 
+          verb = "completed", 
+          description = "Game has ended in a draw.")
+        confirmSweetAlert(
+          session = session,
+          inputId = "endGame",
+          title = "Draw!",
+          text = "Take a moment to review the concepts and then try 
+                     again.",
+          btn_labels = "Start Over"
+        )
+        output$mark <- renderUI(NULL)
+        output$feedback <- renderUI(NULL)
+      }
+      if (is.null(success) || length(success) == 0) {
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = FALSE
+        )
+      } 
+      else{
+        updateButton(
+          session = session,
+          inputId = "submit",
+          disabled = TRUE
+        )
+      }
+      disabled = TRUE
+    })
                  
-                 if (is.null(success) || length(success) == 0) {
-                   sendSweetAlert(
-                     session = session,
-                     title = "Error",
-                     text = "Please select an answer before pressing Submit.",
-                     type = "error"
-                   )
-                 } 
-                 else if (success) {
-                   updateButton(
-                     session = session,
-                     inputId = activeBtn,
-                     label = player,
-                     disabled = TRUE
-                   )
-                   scoreMatrix <<- .score(scoreMatrix, activeBtn, 1)
-                   
-                   output$mark <- renderIcon(
-                     icon = "correct",
-                     width = 50
-                   )
-                   output$feedback <- renderUI(
-                     paste("Your answer is correct!")
-                   )
-                 } 
-                 else {
-                   updateButton(
-                     session = session,
-                     inputId = activeBtn,
-                     label = opponent,
-                     disabled = TRUE
-                   )
-                   scoreMatrix <<- .score(scoreMatrix, 
-                                          activeBtn,
-                                          -1)
-                   output$mark <- renderIcon(
-                     icon = "incorrect",
-                     width = 50
-                   )
-                   output$feedback <- renderUI(
-                     paste("Your answer is incorrect. The correct answer is", 
-                           answer, 
-                           ".")
-                   )
-                 }
-                 
-                 # Check for game over states
-                 .gameState <- .gameCheck(scoreMatrix)
-                 completion <- ifelse(test = .gameState == "continue", 
-                                      yes = FALSE, 
-                                      no = TRUE)
-                 interactionType <- ifelse(test = gameSet[index,]$format == "numeric", 
-                                           yes = "numeric", 
-                                           no = "choice")
-                 
-                 .generateAnsweredStatement(
-                   session,
-                   object = activeBtn,
-                   verb = "answered",
-                   description = gameSet[index,]$question,
-                   response = input$ans,
-                   interactionType = interactionType,
-                   success = success,
-                   completion = completion
-                 )
-                 
-                 if (.gameState == "win") {
-                   .generateStatement(session, 
-                                      object = "qqq", 
-                                      verb = "completed", 
-                                      description = "Player has won the game.")
-                   confirmSweetAlert(
-                     session = session,
-                     inputId = "endGame",
-                     title = "You Win!",
-                     text = "You've filled either a row, a column, or a main diagonal. Start over and play a new game.",
-                     btn_labels = "Start Over"
-                   )
-                   output$mark <- renderUI(NULL)
-                   output$feedback <- renderUI(NULL)
-                 } 
-                 else if (.gameState == "lose") {
-                   .generateStatement(session, 
-                                      object = "qqq", 
-                                      verb = "completed", 
-                                      description = "Player has lost the game.")
-                   confirmSweetAlert(
-                     session = session,
-                     inputId = "endGame",
-                     title = "You lose :(",
-                     text = "Take a moment to review the concepts and then try again.",
-                     btn_labels = "Start Over"
-                   )
-                   output$mark <- renderUI(NULL)
-                   output$feedback <- renderUI(NULL)
-                 } 
-                 else if (.gameState == "draw") {
-                   .generateStatement(session, 
-                                      object = "game", 
-                                      verb = "completed", 
-                                      description = "Game has ended in a draw.")
-                   confirmSweetAlert(
-                     session = session,
-                     inputId = "endGame",
-                     title = "Draw!",
-                     text = "Take a moment to review the concepts and then try again.",
-                     btn_labels = "Start Over"
-                   )
-                   output$mark <- renderUI(NULL)
-                   output$feedback <- renderUI(NULL)
-                 }
-                 if (is.null(success) || length(success) == 0) {
-                   updateButton(
-                     session = session,
-                     inputId = "submit",
-                     disabled = FALSE
-                   )
-                 } 
-                 else{
-                   updateButton(
-                     session = session,
-                     inputId = "submit",
-                     disabled = TRUE
-                   )
-                 }
-                 disabled = TRUE
-               })
   
-  observeEvent(eventExpr = input$pages, 
-               handlerExpr = {
-                 if (input$pages == "qqq") {
-                   if (!gameProgress) {
-                     shinyalert(
-                       title = "Player Select",
-                       text = "Select whether you want to play as O or X.",
-                       showConfirmButton = TRUE,
-                       confirmButtonText = "Play as X",
-                       showCancelButton = TRUE,
-                       cancelButtonText = "Play as O"
-                     )
-                     gameProgress <<- TRUE
-                   }
-                 }
-                 .generateStatement(session, 
-                                    verb = "experienced", 
-                                    description = paste0("Navigated to ", 
-                                                         input$pages, 
-                                                         " tab.")
-                                    )
-               }, 
-               ignoreInit = TRUE)
-    
-  observeEvent(eventExpr = input$endGame, 
-               handlerExpr = {
-                 .generateStatement(session, 
-                                    object = "endGame", 
-                                    verb = "interacted", 
-                                    description = paste("Game has been reset.")
-                                    )
-                 .gameReset()
-               })
-    
-  observeEvent(eventExpr = input$shinyalert, 
-               handlerExpr = {
-                 if (input$shinyalert == TRUE) {
-                   player <<- "X"
-                   opponent <<- "O"
-                 }
-                 if (input$shinyalert == FALSE) {
-                   player <<- "O"
-                   opponent <<- "X"
-                 }
-                 .generateStatement(session, 
-                                    object = "shinyalert", 
-                                    verb = "interacted", 
-                                    description = paste0("User has selected player: ", 
-                                                         player)
-                                    )
+  observeEvent(
+    eventExpr = input$pages, 
+    handlerExpr = {
+      if (input$pages == "qqq") {
+        if (!gameProgress) {
+          shinyalert(
+            title = "Player Select",
+            text = "Select whether you want to play as O or X.",
+            showConfirmButton = TRUE,
+            confirmButtonText = "Play as X",
+            showCancelButton = TRUE,
+            cancelButtonText = "Play as O"
+          )
+          gameProgress <<- TRUE
+        }
+      }
+      .generateStatement(session, 
+                         verb = "experienced", 
+                         description = paste0("Navigated to ", 
+                                              input$pages, 
+                                              " tab.")
+      )
+    }, 
+    ignoreInit = TRUE)
                  
-                 output$player <- renderUI({
-                   return(paste0("You are playing as ", 
-                                 player, 
-                                 "."))
-                 })
-               })
+  observeEvent(
+    eventExpr = input$endGame, 
+    handlerExpr = {
+      .generateStatement(session, 
+                         object = "endGame", 
+                         verb = "interacted", 
+                         description = paste("Game has been reset.")
+      )
+      .gameReset()
+    })
+            
+  observeEvent(
+    eventExpr = input$shinyalert, 
+    handlerExpr = {
+      if (input$shinyalert == TRUE) {
+        player <<- "X"
+        opponent <<- "O"
+      }
+      if (input$shinyalert == FALSE) {
+        player <<- "O"
+        opponent <<- "X"
+      }
+      .generateStatement(session, 
+                         object = "shinyalert", 
+                         verb = "interacted", 
+                         description = paste0("User has selected player: ", 
+                                              player)
+      )
+      
+      output$player <- renderUI({
+        return(paste0("You are playing as ", 
+                      player, 
+                      "."))
+      })
+    })
 }
   boastUtils::boastApp(ui = ui, server = server)
   
