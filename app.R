@@ -65,9 +65,9 @@ ui <- list(
                  tabName = "prereq", 
                  icon = icon("book")
         ),
-        menuItem(text = "Explore",
+        menuItem(text = "Challenge",
                  tabName = "explore", 
-                 icon = icon("wpexplorer")
+                 icon = icon("gears")
         ),
         menuItem(text = "Game", 
                  tabName = "qqq", 
@@ -97,30 +97,33 @@ ui <- list(
           h2("Instructions"),
           tags$ul(
             p(
-              tags$li("Each 'Mystery Model' on the exploration page is generated
+              tags$li("Each 'Mystery Model' on the challenge page is generated
                         with variables or their transformations being the response 
                         (Y) or the predictor variables (X1, X2).")
             ),
             p(
               tags$li("Watch how diagnostic plots change when you adjust the 
                         predictors and response variables using different transformations. 
-                        Note that transforming the y variable will effect certain 
-                        plots more, and transforming the x variable will effect 
-                        other plots more.")
+                        Note that transforming the Y or X variables will effect 
+                      plots in different ways. You also have the option to change 
+                      the variances and sample size of each term.")
             ),
             p(
-              tags$li('You also have the option to change the variances of each
-                        term, and the sample size.')
+              tags$li('Read the challenge prompt and adjust the sliders to answer.')
             ),
             p(
-              tags$li('The instructions in the activity provide some ideas 
-                          for exploration.')
+              tags$li('Once you have an answer, check to see if you are correct.')
+            ),
+            p(
+              tags$li('Complete as many challenges as you desire, and then move on 
+                      to the tic-tac-toe game.')
             ),
             p(
               tags$li("In the game, the object is to win at tic-tac-toe where 
-                        you are playing X's.  Select a square, then answer the 
-                        question. If you get the question correct, an X goes in 
-                        the square. If you get it wrong, an O goes in the square.")
+                        you are playing X's or O's.  Select a square, then answer the 
+                        question. If you get the question correct, your selected 
+                        X or O goes in the square. If you get it wrong, the other 
+                      letter goes in the square.")
             )
           ),
           div(
@@ -192,134 +195,133 @@ ui <- list(
                 size = "large")
           )
         ),
-        #Explore page ----
+        #Challenge page ----
         tabItem(
           tabName = "explore",
           h2("Transformations, Sample Size, and Variances vs. Diagnostic Plots"),
           p("First, select a mystery model to analyze. Each model is generated 
           with Y as the response variable and X1 and X2 as the predictor variables. 
-          Then, read the activity question and adjust the sliders accordingly in 
+          Then, read the challenge question and adjust the sliders accordingly in 
           order to answer it. Once you have an answer, click the 'View Feedback' 
-          button to see if you are correct. Once you complete an activity, click 
-          the 'New Activity' button to receive a new activity question. You can 
+          button to see if you are correct. Once you complete a challenge, click 
+          the 'New Challenge' button to receive a new challenge question. You can 
           also click the 'Results for a New Sample' button to analyze a different 
           sample of data from the mystery model selected. Once you have completed 
-          your desired amount of activities, click the 'Play' button to move onto 
+          your desired amount of challenges, click the 'Play' button to move onto 
           the tic-tac-toe game."),
           br(),
-              fluidRow(
-                column(
-                  width = 4,
-                  wellPanel(
-                  selectInput(
-                    inputId = "model",
-                    label = "Select Mystery Model:",
-                    choices = c(
-                      'Model 1', 
-                      'Model 2', 
-                      'Model 3')
-                  ),
-                  sliderInput(
-                    inputId = "n",
-                    label = "Sample Size:", 
-                    min = 10,
-                    max = 510, 
-                    value = 50, 
-                    step = 5),
-                  
-                  selectInput(
-                    inputId = "x", 
-                    label = "Transformation on X1:", 
-                    choices = c(
-                      'Log(x1)', 
-                      'Square root of x1',
-                      "None"), 
-                    selected = "None"          
-                  ),
-                  bsButton(
-                    inputId = "hint1",
-                    label = "Hint",
-                    icon = icon("question"),
-                    size = "large"),
-                  sliderInput(
-                    inputId = "x1v", 
-                    label = "x1 Variance:", 
-                    min = 0, 
-                    max = 20, 
-                    value = 2, 
-                    step = 1          
-                  ),
-                  selectInput(
-                    inputId = "x2", 
-                    label = "Transformation on X2:", 
-                    choices = c(
-                      'Log(x2)', 
-                      'Square root of x2', 
-                      "None"),
-                    selected = "None"          
-                  ),
-                  bsButton(
-                    inputId = "hint2",
-                    label = "Hint",
-                    icon = icon("question"),
-                    size = "large"),
-                  sliderInput(
-                    inputId = "x2v", 
-                    label = "x2 Variance:", 
-                    min = 0, 
-                    max = 20, 
-                    value = 2, 
-                    step = 1          
-                  ),
-                  selectInput(
-                    inputId = 'y', 
-                    label = 'Transformation on Y:', 
-                    choices = c(
-                      'Log(y)',
-                      'Square root of y',
-                      "None"
-                    ), 
-                    selected = "Log(y)"          
-                  ),
-                  bsButton(
-                    inputId = "hint3",
-                    label = "Hint",
-                    icon = icon("question"),
-                    size = "large"),
-                  sliderInput(
-                    inputId = "yv", 
-                    label = "Y Variance:", 
-                    min = 0, 
-                    max = 20, 
-                    value = 2, 
-                    step = 1          
-                  ),
-              bsButton(
-                inputId = "submitD", 
-                label = "Results for a New Sample", 
-                style = "default",
-                icon = icon("retweet"), 
-                size = "large"
-              ),
-              br(),
-              br(),
-              bsButton(
-                inputId = "begin",
-                label = "Play!",
-                icon = icon("bolt"),
-                style = "default",
-                size = "large")
-                )
+          fluidRow(
+            column(
+              width = 4,
+              wellPanel(
+                selectInput("model", 
+                            "Select Mystery Model:", 
+                            choices = c(
+                              'Model 1', 
+                              'Model 2', 
+                              'Model 3'),
+                            width = 350
+                ),
+                sliderInput(
+                  inputId = "n",
+                  label = "Sample Size:", 
+                  min = 10,
+                  max = 510, 
+                  value = 50, 
+                  step = 5),
+                br(),
+                br(),
+                selectInput("x", 
+                            "Transformation on X1:", 
+                            choices = c(
+                              'Log(x1)' = 'logx', 
+                              'Square root of x1' = 'sqrtx',
+                              "None" = 'nonex'), 
+                            selected = "None",
+                            width = 350
+                ),    
+                sliderInput(
+                  inputId = "x1v", 
+                  label = "x1 Variance:", 
+                  min = 0, 
+                  max = 20, 
+                  value = 2, 
+                  step = 1          
+                ),
+                br(),
+                br(),
+                selectInput(
+                  inputId = "x2", 
+                  label = "Transformation on X2:", 
+                  choices = c(
+                    'Log(x2)' = 'logx2', 
+                    'Square root of x2' = 'sqrtx2', 
+                    "None" = 'nonex2'),
+                  selected = "None",
+                  width = 350
+                ), 
+                sliderInput(
+                  inputId = "x2v", 
+                  label = "x2 Variance:", 
+                  min = 0, 
+                  max = 20, 
+                  value = 2, 
+                  step = 1          
+                ),
+                br(),
+                br(),
+                selectInput(
+                  inputId = 'y', 
+                  label = 'Transformation on Y:', 
+                  choices = c(
+                    'Log(y)' = 'logy',
+                    'Square root of y' = 'sqrty',
+                    "None" = 'noney'
+                  ), 
+                  selected = "Log(y)",
+                  width = 350
+                ),
+                sliderInput(
+                  inputId = "yv", 
+                  label = "Y Variance:", 
+                  min = 0, 
+                  max = 20, 
+                  value = 2, 
+                  step = 1          
+                ),
+                bsButton(
+                  inputId = "submitD", 
+                  label = "Results for a New Sample", 
+                  style = "default",
+                  icon = icon("retweet"), 
+                  size = "large"
+                ),
+                br(),
+                br(),
+                bsButton(
+                  inputId = "begin",
+                  label = "Play!",
+                  icon = icon("bolt"),
+                  style = "default",
+                  size = "large")
+              )
               ),
             column(
               width = 8,
               offset = 0,
-              h3("Adjust the inputs to complete the activity:"),
+              h3("Challenge:"),
               uiOutput("challenges"),
               plotOutput(
                 "plots",
                 width = "100%",
-                height = "600px"),
+                height = "750px"),
+              tags$script(HTML(
+                "$(document).ready(function() {
+                document.getElementById('plots').setAttribute('aria-label',
+                `Collage of dynamic plots including Residuals vs. Fitted, Normal 
+              Q-Q, Scale-Location, and Residuals vs. Leverage.`)
+               })"
+              )),
               br(),
               h3("Feedback:"),
               uiOutput("answers"),
@@ -332,16 +334,15 @@ ui <- list(
                 disabled = FALSE),
               bsButton(
                 inputId = "challenge", 
-                label = "New Activity", 
+                label = "New Challenge", 
                 style = "default",
                 size = "large",
                 disabled = FALSE
               )
-              
             )
-              )
-          
+            ),
                 ),
+
         # Game page ----
         tabItem(
           tabName = "qqq",
@@ -407,12 +408,6 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
-            "Attali, Dean. (2020). shinyjs: Easily Improve the User Experience of 
-            Your Shiny Apps in Seconds. (v2.0.0) [R Package]. Available from 
-            https://CRAN.R-project.org/package=shinyjs"
-          ),
-          p(
-            class = "hangingindent",
             "Attali, Dean and Edwards, Tristan. (2020). shinyalert: Easily Create 
             Pretty Popup Messages (Modals) in 'Shiny'. (v2.0.0) [R Package]. Available
             from https://CRAN.R-project.org/package=shinyalert"
@@ -441,14 +436,14 @@ ui <- list(
           ),
           p(
             class = "hangingindent",
-            "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs 
-            widgets for shiny. (v0.5.0) [R Package]. Available from 
-            https://CRAN.R-project.org/package=shinyWidgets"
+            "Hijmans, Robert J. (2021). raster: Geographic Data Analysis and Modeling. 
+            (v3.4-10) [R Package]. Available from https://CRAN.R-project.org/package=raster"
           ),
           p(
             class = "hangingindent",
-            "Hijmans, Robert J. (2021). raster: Geographic Data Analysis and Modeling. 
-            (v3.4-10) [R Package]. Available from https://CRAN.R-project.org/package=raster"
+            "Perrier, V., Meyer, F., Granjon, D. (2019). shinyWidgets: Custom inputs 
+            widgets for shiny. (v0.5.0) [R Package]. Available from 
+            https://CRAN.R-project.org/package=shinyWidgets"
           ),
           br(),
           br(),
@@ -551,272 +546,308 @@ server <- function(input, output, session) {
       renderPlot({
         if(input$model == "Model 1") {
           nonex <- rnorm(input$n,
-                         3,
-                         input$x1v)
+                         mean = 1000,
+                         sd = sqrt(input$x1v))
           nonex2 <- rnorm(input$n,
-                          3,
-                          input$x2v)
-          e <- rnorm(
-            input$n,
-            0,
-            .2**2)
-          y <- (rnorm
-                (input$n,
-                  3,
-                  input$yv)
-                )**2
+                          mean = 1000,
+                          sd = sqrt(input$x2v))
+          e <- rnorm(input$n,
+                     mean = 0,
+                     sd = .2**2)
+          y <- (rnorm(input$n,
+                      mean = 3,
+                      sd = input$yv))**2
           
           logx <- log(nonex)
-          logx2 <-log(nonex2)
+          logx2 <- log(nonex2)
           logy <- log(y)
     
-          expx <- sqrt(nonex)
-          expx2 <- sqrt(nonex2)
-          expy <- sqrt(y)
+          sqrtx <- sqrt(nonex)
+          sqrtx2 <- sqrt(nonex2)
+          sqrty <- sqrt(y)
         }
         else if (input$model == "Model 2") {
           nonex <- rnorm(input$n,
-                         3,
-                         input$x1v)**2
+                         mean = 1000,
+                         sd = sqrt(input$x1v))
           nonex2 <- rnorm(input$n,
-                          3,
-                          input$x2v)**2
+                          mean = 1000,
+                          sd = sqrt(input$x2v))
           e <- rnorm(input$n,
-                     0,
-                     .2**2)
-          y <- (rnorm
-                (input$n,
-                  3,
-                  input$yv)
-                )
+                     mean = 0,
+                     sd = .2**2)
+          y <- rnorm(input$n,
+                     mean = 1000,
+                     sd = input$yv)
           
           logx <- log(nonex)
           logx2 <-log(nonex2)
           logy <- log(y)
           
-          expx <- sqrt(nonex)
-          expx2 <- sqrt(nonex2)
-          expy <- sqrt(y)
+          sqrtx <- sqrt(nonex)
+          sqrtx2 <- sqrt(nonex2)
+          sqrty <- sqrt(y)
         }
         else {
           nonex <- rnorm(input$n,
-                         3,
-                         input$x1v)**2
+                         mean = 1000,
+                         sd = input$x1v)**2
           nonex2 <- rnorm(input$n,
-                          3,
-                          input$x2v)**2
+                          mean = 1000,
+                          sd = input$x2v)**2
           e <- rnorm(input$n,
-                     0,
-                     .2**2)
-          y <- (rnorm
-                (input$n,
-                  3,
-                  input$yv))**2
+                     mean = 0,
+                     sd = .2**2)
+          y <- (rnorm(input$n,
+                      mean = 1000,
+                      sd = input$yv))**2
           
           logx <- log(nonex)
-          logx2 <-log(nonex2)
+          logx2 <- log(nonex2)
           logy <- log(y)
           
-          expx <- sqrt(nonex)
-          expx2 <- sqrt(nonex2)
-          expy <- sqrt(y)
+          sqrtx <- sqrt(nonex)
+          sqrtx2 <- sqrt(nonex2)
+          sqrty <- sqrt(y)
         }
         
-        for (i in c(input$x)) { 
-          for(j in c(input$x2)) {
-            for( k in  c(input$y)) {
-          if (any(i == "none") & any(j == "none") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model = lm(y~nonex+nonex2+e)
-            plot(model)
-          } 
-          else if (any(i == "none") & any(j == "logx2") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model2 = lm(y~nonex+logx2+e)
-            plot(model2)
-          }
-          else if(any(i == "none") & any(j == "sqrtx2") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model3 = lm(y~nonex+expx2+e)
-            plot(model3)
-          }
-          else if(any(i == "logx") & any(j == "none") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model4 = lm(y~logx+nonex2+e)
-            plot(model4)
-          }
-          else if(any(i == "logx") & any(j == "logx2") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model5 = lm(y~logx+logx2+e)
-            plot(model5)
-          }
-          else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model6 = lm(y~logx+expx2+e)
-            plot(model6)
-          }
-          else if(any(i == "sqrtx") & any(j == "none") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model7 = lm(y~expx+nonex2+e)
-            plot(model7)
-          }
-          else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model8 = lm(y~expx+logx2+e)
-            plot(model8)
-          }
-          else if(any(i == "sqrtx") & any(j == "sqrtx2") & any(k == "none")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model9 = lm(y~expx+expx2+e)
-            plot(model9)
-          }
-          else if(any(i == "none") & any(j == "nonex2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model10 = lm(logy~nonex+nonex2+e)
-            plot(model10)
-          }
-          else if(any(i == "none") & any(j == "logx2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model11 = lm(logy~nonex+logx2+e)
-            plot(model11)
-          }
-          else if(any(i == "none") & any(j == "sqrtx2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model12 = lm(logy~nonex+expx2+e)
-            plot(model12)
-          }
-          else if(any(i == "logx") & any(j == "nonex2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model13 = lm(logy~logx+nonex2+e)
-            plot(model13)
-          }
-          else if(any(i == "logx") & any(j == "logx2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              ) 
-            model14 = lm(logy~logx+logx2+e)
-            plot(model14)
-          }
-          else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model15 = lm(logy~logx+expx2+e)
-            plot(model15)
-          }
-          else if(any(i == "sqrtx") & any(j == "nonex2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model16 = lm(logy~expx+nonex2+e)
-            plot(model16)
-          }
-          else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model17 = lm(logy~expx+logx2+e)
-            plot(model17)
-          }
-          else if(any(i == "sqrtx") & any(j == "sqrtx2") & any(k== "logy")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model18 = lm(logy~expx+expx2+e)
-            plot(model18)
-          }
-          else if(any(i == "none") & any(j == "nonex2") & any(k == "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model19 = lm(expy~nonex+nonex2+e)
-            plot(model19)
-          }
-          else if(any(i == "none") & any(j == "logx2") & any(k == "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model20 = lm(expy~nonex+logx2+e)
-            plot(model20)
-          }
-          else if(any(i == "none") & any(j == "sqrtx2") & any(k == "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model21 = lm(expy~nonex+expx2+e)
-            plot(model21)
-          }
-          else if(any(i == "logx") & any(j == "none") & any(k == "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model22 = lm(expy~logx+nonex2+e)
-            plot(model22)
-          }
-          else if(any(i == "logx") & any(j == "logx2") & any(k== "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model23 = lm(expy~logx+logx2+e)
-            plot(model23)
-          }
-          else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model24 = lm(expy~logx+expx2+e)
-            plot(model24)
-          }
-          else if(any(i == "sqrtx") & any(j == "none") & any(k== "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model25 = lm(expy~expx+nonex2+e)
-            plot(model25)
-          }
-          else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "sqrty")) {
-            par(
-              mfrow = c(2,2)
-              )
-            model26 = lm(expy~expx+logx2+e)
-            plot(model26)
-          }
-          else {
-            par(
-              mfrow = c(2,2)
-              )
-            model27 = lm(expy~expx+expx2+e)
-            plot(model27)
-          }
-            }
-          }
-          } 
+        ###Work section ------
+
+        if (input$x == 'none') {
+          modelx = nonex
+        }
+        else if (input$x == 'logx') {
+          modelx = logx
+        }
+        else {
+          modelx = sqrtx
+        }
+        
+        if (input$x2 == 'none') {
+          modelx2 = nonex2
+        }
+        else if (input$x == 'logx2') {
+          modelx2 = logx2
+        }
+        else {
+          modelx2 = sqrtx2
+        }
+        
+        if (input$y == 'none') {
+          modely = noney
+        }
+        else if (input$x == 'logy') {
+          modely = logy
+        }
+        else {
+          modely = sqrty
+        }
+        
+        par(
+          mfrow = c(2,2)
+        )
+        
+        model = lm(modely ~ modelx + modelx2 )
+        plot(model)
+        
+        
+            
+        # 
+        # for (i in c(input$x)) {
+        #   for(j in c(input$x2)) {
+        #     for( k in  c(input$y)) {
+        #   if (any(i == "none") & any(j == "none") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model = lm(y~nonex+nonex2+e)
+        #     plot(model)
+        #   }
+        #   else if (any(i == "none") & any(j == "logx2") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model2 = lm(y~nonex+logx2+e)
+        #     plot(model2)
+        #   }
+        #   else if(any(i == "none") & any(j == "sqrtx2") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model3 = lm(y~nonex+sqrtx2+e)
+        #     plot(model3)
+        #   }
+        #   else if(any(i == "logx") & any(j == "none") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model4 = lm(y~logx+nonex2+e)
+        #     plot(model4)
+        #   }
+        #   else if(any(i == "logx") & any(j == "logx2") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model5 = lm(y~logx+logx2+e)
+        #     plot(model5)
+        #   }
+        #   else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model6 = lm(y~logx+sqrtx2+e)
+        #     plot(model6)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "none") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model7 = lm(y~sqrtx+nonex2+e)
+        #     plot(model7)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model8 = lm(y~sqrtx+logx2+e)
+        #     plot(model8)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "sqrtx2") & any(k == "none")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model9 = lm(y~sqrtx+sqrtx2+e)
+        #     plot(model9)
+        #   }
+        #   else if(any(i == "none") & any(j == "nonex2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model10 = lm(logy~nonex+nonex2+e)
+        #     plot(model10)
+        #   }
+        #   else if(any(i == "none") & any(j == "logx2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model11 = lm(logy~nonex+logx2+e)
+        #     plot(model11)
+        #   }
+        #   else if(any(i == "none") & any(j == "sqrtx2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model12 = lm(logy~nonex+sqrtx2+e)
+        #     plot(model12)
+        #   }
+        #   else if(any(i == "logx") & any(j == "nonex2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model13 = lm(logy~logx+nonex2+e)
+        #     plot(model13)
+        #   }
+        #   else if(any(i == "logx") & any(j == "logx2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model14 = lm(logy~logx+logx2+e)
+        #     plot(model14)
+        #   }
+        #   else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model15 = lm(logy~logx+sqrtx2+e)
+        #     plot(model15)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "nonex2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model16 = lm(logy~sqrtx+nonex2+e)
+        #     plot(model16)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model17 = lm(logy~sqrtx+logx2+e)
+        #     plot(model17)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "sqrtx2") & any(k== "logy")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model18 = lm(logy~sqrtx+sqrtx2+e)
+        #     plot(model18)
+        #   }
+        #   else if(any(i == "none") & any(j == "nonex2") & any(k == "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model19 = lm(sqrty~nonex+nonex2+e)
+        #     plot(model19)
+        #   }
+        #   else if(any(i == "none") & any(j == "logx2") & any(k == "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model20 = lm(sqrty~nonex+logx2+e)
+        #     plot(model20)
+        #   }
+        #   else if(any(i == "none") & any(j == "sqrtx2") & any(k == "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model21 = lm(sqrty~nonex+sqrtx2+e)
+        #     plot(model21)
+        #   }
+        #   else if(any(i == "logx") & any(j == "none") & any(k == "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model22 = lm(sqrty~logx+nonex2+e)
+        #     plot(model22)
+        #   }
+        #   else if(any(i == "logx") & any(j == "logx2") & any(k== "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model23 = lm(sqrty~logx+logx2+e)
+        #     plot(model23)
+        #   }
+        #   else if(any(i == "logx") & any(j == "sqrtx2") & any(k == "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model24 = lm(sqrty~logx+sqrtx2+e)
+        #     plot(model24)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "none") & any(k== "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model25 = lm(sqrty~sqrtx+nonex2+e)
+        #     plot(model25)
+        #   }
+        #   else if(any(i == "sqrtx") & any(j == "logx2") & any(k == "sqrty")) {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model26 = lm(sqrty~sqrtx+logx2+e)
+        #     plot(model26)
+        #   }
+        #   else {
+        #     par(
+        #       mfrow = c(2,2)
+        #       )
+        #     model27 = lm(sqrty~sqrtx+sqrtx2+e)
+        #     plot(model27)
+        #   }
+        #     }
+        #   }
+        #   }
       })
     
     #end of observeeventsubmit     
@@ -853,66 +884,7 @@ server <- function(input, output, session) {
     }
     
     output$challenges <- renderUI ({
-      if (index$index == 1) {
-        p(bankc[1,2])
-      } 
-      else if (index$index == 2) {
-        p(bankc[2,2])
-      }
-      else if (index$index == 3) {
-        p(bankc[3,2])
-      }
-      else if (index$index == 4) {
-        p(bankc[4,2])
-      }
-      else if (index$index == 5) {
-        p(bankc[5,2])
-      }
-      else if (index$index == 6) {
-        p(bankc[6,2])
-      }
-      else if (index$index == 7) {
-        p(bankc[7,2])
-      }
-      else if (index$index == 8) {
-        p(bankc[8,2])
-      }
-      else if (index$index == 9) {
-        p(bankc[9,2])
-      }
-      else if (index$index == 10) {
-        p(bankc[10,2])
-      }
-      else if (index$index == 11) {
-        p(bankc[11,2])
-      }
-      else if (index$index == 12) {
-        p(bankc[12,2])
-      }
-      else if (index$index == 13) {
-        p(bankc[13,2])
-      }
-      else if (index$index == 14) {
-        p(bankc[14,2]) 
-      }
-      else if (index$index == 15) {
-        p(bankc[15,2])
-      }
-      else if (index$index == 16) {
-        p(bankc[16,2])
-      }
-      else if (index$index == 17) {
-        p(bankc[17,2])
-      }
-      else if (index$index == 18) {
-        p(bankc[18,2])
-      }
-      else if (index$index == 19) {
-        p(bankc[19,2])
-      }
-      else if (index$index == 20) {
-        p(bankc[20,2])
-      }
+      h4(bankc[index$index, 2])
     }
     )
   })
@@ -939,111 +911,13 @@ server <- function(input, output, session) {
         renderText("Please hit the view feedback button for feedback")
     }
     ) 
-  observeEvent(
-    eventExpr = input$hint1,
-    handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        title = "Hint:",
-        type = NULL,
-        closeOnClickOutside = TRUE,
-        p("Transform x1, a predictor variable, when non-linearity is the only 
-          condition  in question")
-      )
-    }
-  )
-  observeEvent(
-    eventExpr = input$hint2,
-    handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        title = "Hint:",
-        type = NULL,
-        closeOnClickOutside = TRUE,
-        p("Transform x2, a predictor variable, when non-linearity is the only 
-          condition  in question")
-      )
-    }
-  )
-  observeEvent(
-    eventExpr = input$hint3,
-    handlerExpr = {
-      sendSweetAlert(
-        session = session,
-        title = "Hint:",
-        type = NULL,
-        closeOnClickOutside = TRUE,
-        p("Transform Y, a response variable, when non-normality and/or unequal 
-          variances are in question")
-      )
-    }
-  )
 
   #output of the answers ----
   observeEvent(
     eventExpr = input$answer,
     handlerExpr = {
       output$answers <- renderUI ({
-        if (index$index == 1){
-          p(bankc[1,3])
-        } 
-        else if (index$index == 2){
-          p(bankc[2,3])
-        }
-        else if (index$index == 3){
-          p(bankc[3,3])
-        }
-        else if (index$index == 4){
-          p(bankc[4,3])
-        }
-        else if (index$index == 5){
-          p(bankc[5,3])
-        }
-        else if (index$index == 6){
-          p(bankc[6,3])
-        }
-        else if (index$index == 7){
-          p(bankc[7,3])
-        }
-        else if (index$index == 8){
-          p(bankc[8,3])
-        }
-        else if (index$index == 9){
-          p(bankc[9,3])
-        }
-        else if (index$index == 10){
-          p(bankc[10,3])
-        }
-        else if (index$index == 11){
-          p(bankc[11,3])
-        }
-        else if (index$index == 12){
-          p(bankc[12,3])
-        }
-        else if (index$index == 13){
-          p(bankc[13,3])
-        }
-        else if (index$index == 14){
-          p(bankc[14,3])
-        }
-        else if (index$index == 15){
-          p(bankc[15,3])
-        }
-        else if (index$index == 16){
-          p(bankc[16,3])
-        }
-        else if (index$index == 17){
-          p(bankc[17,3])
-        }
-        else if (index$index == 18){
-          p(bankc[18,3])
-        }
-        else if (index$index == 19){
-          p(bankc[19,3])
-        }
-        else if (index$index == 20){
-          p(bankc[20,3])
-        }
+        p(bankc[index$index, 3])
       }
       )
     }
@@ -1651,4 +1525,6 @@ server <- function(input, output, session) {
     })
 }
   boastUtils::boastApp(ui = ui, server = server)
+  
+  # as.name(input$y) 
   
