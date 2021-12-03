@@ -1,0 +1,25 @@
+Title: Regression Assumptions and Diagnostics
+ShortName: Regression Assumptions
+Date: 2021-07-14
+Lifecycle: experimental
+Authors@R: c(
+    person(given = "TJ", family = "McIntyre", role = c("aut", "cre")),
+    person(given = "Ryan", family = "Voyack", role = c("aut")),
+    person(given = "Lydia", family = "Bednarczyk", email = "ljb5670@psu.edu", role = c("aut")),
+    person(given = "Dennis", family = "Pearl", role = c("aut")),
+    person(given = "Neil", family = "Hatfield", role = c("aut"))
+  )
+Chapter: Chapter 6
+Description: This app will allow you to explore how to read diagnostic plots
+                while interacting with different transformations to help you better 
+                understand the assumptions of regression.
+LearningObjectives: c(
+    "The student will learn to understand how transformations of explanatory and
+    response variables change assumption plots."
+  )
+DisplayMode: Normal
+URL: https://psu-eberly.shinyapps.io/Regression_Assumptions
+BugReports: https://github.com/EducationShinyAppTeam/Regression_Assumptions/issues
+License: CC-BY-NC-SA-4.0
+Tags: simulation
+Type: Shiny
