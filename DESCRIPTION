@@ -5,7 +5,9 @@ Lifecycle: experimental
 Authors@R: c(
     person(given = "TJ", family = "McIntyre", role = c("aut", "cre")),
     person(given = "Ryan", family = "Voyack", role = c("aut")),
-    person(given = "Lydia", family = "Bednarczyk", email = "ljb5670@psu.edu", role = c("aut"))
+    person(given = "Lydia", family = "Bednarczyk", email = "ljb5670@psu.edu", role = c("aut")),
+    person(given = "Dennis", family = "Pearl", role = c("aut")),
+    person(given = "Neil", family = "Hatfield", role = c("aut"))
   )
 Chapter: Chapter 6
 Description: This app will allow you to explore how to read diagnostic plots
@@ -16,8 +18,8 @@ LearningObjectives: c(
     response variables change assumption plots."
   )
 DisplayMode: Normal
-URL: https://psu-eberly.shinyapps.io/Assumptions
-BugReports: https://github.com/EducationShinyAppTeam/Assumptions/issues
+URL: https://psu-eberly.shinyapps.io/Regression_Assumptions
+BugReports: https://github.com/EducationShinyAppTeam/Regression_Assumptions/issues
 License: CC-BY-NC-SA-4.0
 Tags: simulation
 Type: Shiny
