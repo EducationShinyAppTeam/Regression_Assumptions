@@ -977,6 +977,8 @@ server <- function(input, output, session) {
                          verb = "interacted",
                          description = "Game board has been reset.")
       .gameReset()
+      output$mark <- renderUI(NULL)
+      output$feedback <- renderUI(NULL)
   })
 
   # Render Game Board / Attach Observers
@@ -1225,6 +1227,8 @@ server <- function(input, output, session) {
                          description = paste("Game has been reset.")
       )
       .gameReset()
+      output$mark <- renderUI(NULL)
+      output$feedback <- renderUI(NULL)
     })
 
   observeEvent(
